@@ -5,6 +5,7 @@
 Built for the **Build on Arc** hackathon (DeFi track).
 
 **Live app:** https://arc-legacy-eight.vercel.app
+**Contract (Arc testnet):** [`0x4DB6268FC91E941Cb67f465639fAf540d52Eee57`](https://testnet.arcscan.app/address/0x4DB6268FC91E941Cb67f465639fAf540d52Eee57)
 
 ## The idea
 
@@ -69,6 +70,6 @@ npx hardhat run scripts/deploy.js --network arcTestnet
 ## Roadmap (hackathon checkpoints)
 
 - [x] **Checkpoint 1 (Jul 19)** — idea, team, project page
-- [ ] **Checkpoint 2 (Jul 26)** — core contract deployed to Arc testnet, repo public, web UI started
+- [x] **Checkpoint 2 (Jul 26)** — core contract deployed to Arc testnet, repo public, web UI started
 - [ ] **Checkpoint 3 (Aug 9)** — full MVP: web app (create estate, manage heirs, check in, claim), demo video, deck
 - [ ] Stretch: check-in reminders, ERC-20 EURC support, guardian-based social recovery, agentic executor
