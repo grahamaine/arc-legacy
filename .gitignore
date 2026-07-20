@@ -6,3 +6,4 @@ coverage/
 coverage.json
 dist/
 typechain-types/
+*.tsbuildinfo
