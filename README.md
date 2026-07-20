@@ -4,6 +4,8 @@
 
 Built for the **Build on Arc** hackathon (DeFi track).
 
+**Live app:** https://arc-legacy-eight.vercel.app
+
 ## The idea
 
 Billions in crypto are lost forever when holders die or lose access — there is no "next of kin" for a wallet. Arc Legacy is on-chain estate planning:
