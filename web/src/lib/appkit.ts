@@ -2,7 +2,7 @@ import type { AppKit } from "@circle-fin/app-kit";
 import type { ViemAdapter } from "@circle-fin/adapter-viem-v2";
 
 /** Chain identifier strings understood by App Kit. */
-export const ARC_CHAIN = "Arc_Testnet";
+export const ARC_CHAIN = "Arc_Testnet" as const;
 
 /** Testnets users can bridge USDC from into Arc. */
 export const BRIDGE_SOURCES = [
@@ -15,6 +15,9 @@ export const BRIDGE_SOURCES = [
 
 /** EURC token on Arc testnet (USDC is the native gas token). */
 export const ARC_EURC_ADDRESS = "0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a";
+
+/** Circle Earn demo lending vault on Arc testnet (from App Kit docs). */
+export const ARC_EARN_VAULT = "0xAabbeF1D3971c710276ed41eC791BbE14CdB8E88";
 
 // The kit and its deps are heavy, so they are imported lazily the first time
 // a swap/bridge widget actually needs them.

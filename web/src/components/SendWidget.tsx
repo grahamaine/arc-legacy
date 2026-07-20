@@ -4,10 +4,31 @@ import type { WalletState } from "../hooks/useWallet";
 import { useTx } from "../hooks/useTx";
 import { TxStatusLine } from "./TxStatusLine";
 
+function prefillFromUrl(): { to: string; amount: string } {
+  const params = new URLSearchParams(location.search);
+  const pay = params.get("pay");
+  return {
+    to: pay && isAddress(pay) ? pay : "",
+    amount: params.get("amount") ?? "",
+  };
+}
+
 export function SendWidget({ wallet }: { wallet: WalletState }) {
-  const [to, setTo] = useState("");
-  const [amount, setAmount] = useState("");
+  const [{ to, amount }, setForm] = useState(prefillFromUrl);
+  const setTo = (v: string) => setForm((f) => ({ ...f, to: v }));
+  const setAmount = (v: string) => setForm((f) => ({ ...f, amount: v }));
+  const [copied, setCopied] = useState(false);
   const tx = useTx();
+
+  const copyRequestLink = () => {
+    const url = new URL(location.origin);
+    url.searchParams.set("pay", wallet.account ?? "");
+    if (Number(amount)) url.searchParams.set("amount", amount);
+    navigator.clipboard.writeText(url.toString()).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
 
   return (
     <section className="card">
@@ -47,6 +68,13 @@ export function SendWidget({ wallet }: { wallet: WalletState }) {
           Send
         </button>
       </div>
+      <p className="hint">
+        <button className="ghost" onClick={copyRequestLink}>
+          {copied ? "Copied ✓" : "Copy payment request link"}
+        </button>{" "}
+        — share it and the sender's form is prefilled to pay you
+        {Number(amount) ? ` ${amount} USDC` : ""}.
+      </p>
       <TxStatusLine status={tx.status} />
     </section>
   );

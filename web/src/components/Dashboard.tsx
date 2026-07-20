@@ -11,6 +11,8 @@ import { SwapWidget } from "./SwapWidget";
 import { BridgeWidget } from "./BridgeWidget";
 import { SendWidget } from "./SendWidget";
 import { ActivityWidget } from "./ActivityWidget";
+import { YieldWidget } from "./YieldWidget";
+import { TreasuryWidget } from "./TreasuryWidget";
 
 export function Dashboard({ wallet }: { wallet: WalletState }) {
   const { account, provider } = wallet;
@@ -57,6 +59,8 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
         <SendWidget wallet={wallet} />
         <SwapWidget wallet={wallet} />
         <BridgeWidget wallet={wallet} />
+        <YieldWidget wallet={wallet} />
+        <TreasuryWidget wallet={wallet} />
       </div>
     </>
   );

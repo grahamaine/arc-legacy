@@ -8,11 +8,40 @@ export function SwapWidget({ wallet }: { wallet: WalletState }) {
   const [amount, setAmount] = useState("");
   const [direction, setDirection] = useState<Direction>("USDC->EURC");
   const [busy, setBusy] = useState(false);
+  const [quote, setQuote] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [tokenIn, tokenOut] =
     direction === "USDC->EURC" ? (["USDC", "EURC"] as const) : (["EURC", "USDC"] as const);
+
+  const doQuote = async () => {
+    setBusy(true);
+    setError(null);
+    setQuote(null);
+    try {
+      const kit = await getAppKit();
+      const adapter = await getAdapter();
+      const est = await kit.estimateSwap({
+        from: { adapter, chain: ARC_CHAIN },
+        tokenIn,
+        tokenOut,
+        amountIn: amount,
+      });
+      const out = est.estimatedOutput;
+      setQuote(
+        out
+          ? `${amount} ${tokenIn} ≈ ${out.amount} ${out.token} (rate ${(
+              Number(out.amount) / Number(amount)
+            ).toFixed(4)})`
+          : "No quote available for this pair right now."
+      );
+    } catch (err) {
+      setError(kitErrorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const doSwap = async () => {
     setBusy(true);
@@ -39,10 +68,10 @@ export function SwapWidget({ wallet }: { wallet: WalletState }) {
 
   return (
     <section className="card">
-      <h3>Swap</h3>
+      <h3>Swap · FX</h3>
       <p className="hint">
         Same-chain stablecoin FX on Arc via Circle App Kit — swap between
-        dollars (USDC) and euros (EURC).
+        dollars (USDC) and euros (EURC), with a live quote before you commit.
       </p>
       <div className="field-row">
         <input
@@ -60,14 +89,18 @@ export function SwapWidget({ wallet }: { wallet: WalletState }) {
         >
           {tokenIn} → {tokenOut} ⇄
         </button>
+        <button disabled={busy || !Number(amount)} onClick={doQuote}>
+          Quote
+        </button>
         <button
           className="primary"
           disabled={busy || !Number(amount)}
           onClick={doSwap}
         >
-          {busy ? "Swapping…" : "Swap"}
+          {busy ? "Working…" : "Swap"}
         </button>
       </div>
+      {quote && <p className="hint" style={{ color: "var(--accent)" }}>{quote}</p>}
       {message && <p className="hint" style={{ color: "var(--green)" }}>{message}</p>}
       {error && <p className="hint error">{error}</p>}
     </section>
