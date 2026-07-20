@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { ContractTransactionResponse } from "ethers";
+import type { TransactionResponse } from "ethers";
 
 export type TxStatus =
   | { kind: "idle" }
@@ -13,7 +13,7 @@ export function useTx(onConfirmed?: () => void) {
   const [status, setStatus] = useState<TxStatus>({ kind: "idle" });
 
   const run = useCallback(
-    async (label: string, send: () => Promise<ContractTransactionResponse>) => {
+    async (label: string, send: () => Promise<TransactionResponse>) => {
       setStatus({ kind: "pending", label });
       try {
         const tx = await send();

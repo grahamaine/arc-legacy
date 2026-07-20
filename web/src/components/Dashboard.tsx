@@ -9,6 +9,8 @@ import { ClaimWidget } from "./ClaimWidget";
 import { BalancesWidget } from "./BalancesWidget";
 import { SwapWidget } from "./SwapWidget";
 import { BridgeWidget } from "./BridgeWidget";
+import { SendWidget } from "./SendWidget";
+import { ActivityWidget } from "./ActivityWidget";
 
 export function Dashboard({ wallet }: { wallet: WalletState }) {
   const { account, provider } = wallet;
@@ -40,6 +42,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
             <WithdrawWidget wallet={wallet} estate={estate} refresh={refresh} />
             <HeirsWidget wallet={wallet} estate={estate} refresh={refresh} />
             <ClaimWidget wallet={wallet} />
+            <ActivityWidget wallet={wallet} />
           </>
         ) : (
           <section className="card">
@@ -51,6 +54,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
           </section>
         )}
         <BalancesWidget wallet={wallet} />
+        <SendWidget wallet={wallet} />
         <SwapWidget wallet={wallet} />
         <BridgeWidget wallet={wallet} />
       </div>

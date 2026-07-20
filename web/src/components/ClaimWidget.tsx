@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isAddress } from "ethers";
 import type { WalletState } from "../hooks/useWallet";
 import { useTx } from "../hooks/useTx";
@@ -39,6 +39,19 @@ export function ClaimWidget({ wallet }: { wallet: WalletState }) {
   };
 
   const tx = useTx(() => owner && load(owner));
+
+  // Prefill from a shared claim link: /?owner=0x…
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (prefilled.current || !provider || !account) return;
+    const param = new URLSearchParams(location.search).get("owner");
+    if (param && isAddress(param)) {
+      prefilled.current = true;
+      setOwnerInput(param);
+      load(param);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider, account]);
 
   const myShare =
     account && estate

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { WalletState } from "../hooks/useWallet";
 import { useTx } from "../hooks/useTx";
 import { TxStatusLine } from "./TxStatusLine";
@@ -14,6 +15,16 @@ export function HeirsWidget({
   refresh: () => void;
 }) {
   const tx = useTx(refresh);
+  const [copied, setCopied] = useState(false);
+
+  const copyClaimLink = () => {
+    navigator.clipboard
+      .writeText(`${location.origin}/?owner=${wallet.account}`)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      });
+  };
 
   return (
     <section className="card">
@@ -42,6 +53,15 @@ export function HeirsWidget({
             )
           }
         />
+      )}
+      {(estate?.beneficiaries.length ?? 0) > 0 && (
+        <p className="hint">
+          <button className="ghost" onClick={copyClaimLink}>
+            {copied ? "Copied ✓" : "Copy claim link for your heirs"}
+          </button>{" "}
+          — they open it, connect their wallet, and your estate is already
+          filled in.
+        </p>
       )}
       <TxStatusLine status={tx.status} />
     </section>

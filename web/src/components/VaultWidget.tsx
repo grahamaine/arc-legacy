@@ -74,6 +74,29 @@ export function VaultWidget({
         )}
       </div>
 
+      {hasEstate && !estate.unlocked && (
+        <div
+          className="progress"
+          title="Time elapsed since your last check-in"
+        >
+          <div
+            className={
+              pastDeadline
+                ? "progress-fill danger"
+                : timeLeft < estate.checkInInterval / 4n
+                  ? "progress-fill warn"
+                  : "progress-fill"
+            }
+            style={{
+              width: `${Math.min(
+                100,
+                Number(((now - estate.lastCheckIn) * 100n) / estate.checkInInterval)
+              )}%`,
+            }}
+          />
+        </div>
+      )}
+
       {estate.unlocked ? (
         <p className="hint">
           A beneficiary claim has unlocked this estate; owner actions are
