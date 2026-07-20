@@ -26,12 +26,22 @@ Billions in crypto are lost forever when holders die or lose access — there is
 | `contracts/ArcLegacy.sol` | Estate vault: deposits, beneficiaries, check-ins, claims |
 | `test/ArcLegacy.test.js` | Full unit test suite (Hardhat + ethers v6) |
 | `scripts/deploy.js` | Deploys to Arc testnet |
+| `web/` | React webapp (Vite + ethers v6): create estate, manage heirs, check in, claim |
 
 ## Getting started
 
 ```bash
 npm install
 npx hardhat test          # run the test suite
+```
+
+### Run the webapp
+
+```bash
+cd web
+npm install
+cp .env.example .env      # set VITE_CONTRACT_ADDRESS to the deployed address
+npm run dev               # http://localhost:5173
 ```
 
 ### Deploy to Arc testnet

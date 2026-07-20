@@ -4,4 +4,5 @@ cache/
 artifacts/
 coverage/
 coverage.json
+dist/
 typechain-types/
