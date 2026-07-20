@@ -46,7 +46,7 @@ export default function App() {
       )}
       {connectError && <p className="banner warning">{connectError}</p>}
 
-      {wallet.account ? (
+      {wallet.account && CONTRACT_ADDRESS ? (
         <>
           <nav className="tabs">
             <button
