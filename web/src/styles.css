@@ -35,9 +35,16 @@ input {
 }
 
 .app {
-  max-width: 760px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 2rem 1.25rem 4rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 1rem;
+  align-items: start;
 }
 
 header {
@@ -251,7 +258,8 @@ button.ghost {
   margin-top: 0.6rem;
 }
 
-input {
+input,
+select {
   font: inherit;
   flex: 1;
   background: var(--bg);
@@ -262,7 +270,8 @@ input {
   min-width: 0;
 }
 
-input:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: var(--accent);
 }

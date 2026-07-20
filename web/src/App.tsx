@@ -1,15 +1,11 @@
 import { useState } from "react";
 import { useWallet } from "./hooks/useWallet";
-import { EstatePanel } from "./components/EstatePanel";
-import { ClaimPanel } from "./components/ClaimPanel";
+import { Dashboard } from "./components/Dashboard";
 import { CONTRACT_ADDRESS } from "./lib/contract";
 import { ARC_TESTNET, explorerAddress, shortAddress } from "./lib/chain";
 
-type Tab = "estate" | "claim";
-
 export default function App() {
   const wallet = useWallet();
-  const [tab, setTab] = useState<Tab>("estate");
   const [connectError, setConnectError] = useState<string | null>(null);
 
   const connect = () =>
@@ -40,34 +36,14 @@ export default function App() {
 
       {!CONTRACT_ADDRESS && (
         <p className="banner warning">
-          No contract address configured. Deploy ArcLegacy and set
-          VITE_CONTRACT_ADDRESS in web/.env.
+          Vault contract not deployed yet — swap and bridge still work. Deploy
+          ArcLegacy and set VITE_CONTRACT_ADDRESS to enable estates.
         </p>
       )}
       {connectError && <p className="banner warning">{connectError}</p>}
 
-      {wallet.account && CONTRACT_ADDRESS ? (
-        <>
-          <nav className="tabs">
-            <button
-              className={tab === "estate" ? "tab active" : "tab"}
-              onClick={() => setTab("estate")}
-            >
-              My estate
-            </button>
-            <button
-              className={tab === "claim" ? "tab active" : "tab"}
-              onClick={() => setTab("claim")}
-            >
-              Claim an inheritance
-            </button>
-          </nav>
-          {tab === "estate" ? (
-            <EstatePanel wallet={wallet} />
-          ) : (
-            <ClaimPanel wallet={wallet} />
-          )}
-        </>
+      {wallet.account ? (
+        <Dashboard wallet={wallet} />
       ) : (
         <div className="hero">
           <img className="hero-logo" src="/logo.png" alt="" />
