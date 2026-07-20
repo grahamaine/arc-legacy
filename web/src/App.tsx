@@ -19,8 +19,11 @@ export default function App() {
     <div className="app">
       <header>
         <div className="brand">
-          <h1>Arc Legacy</h1>
-          <p className="tagline">Stablecoin inheritance vaults on Arc</p>
+          <img className="logo" src="/logo.png" alt="Arc Legacy medallion" />
+          <div>
+            <h1>Arc Legacy</h1>
+            <p className="tagline">Stablecoin inheritance vaults on Arc</p>
+          </div>
         </div>
         {wallet.account ? (
           <div className="wallet-chip">
@@ -67,6 +70,7 @@ export default function App() {
         </>
       ) : (
         <div className="hero">
+          <img className="hero-logo" src="/logo.png" alt="" />
           <h2>On-chain estate planning, settled in dollars.</h2>
           <ol>
             <li>Deposit USDC into your vault.</li>
