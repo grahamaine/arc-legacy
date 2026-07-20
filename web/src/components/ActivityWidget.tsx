@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
-import { EventLog } from "ethers";
+import { Interface, type LogDescription } from "ethers";
 import type { WalletState } from "../hooks/useWallet";
-import { getContract } from "../lib/contract";
-import { explorerTx, fmtUsdc, shortAddress } from "../lib/chain";
+import { ARC_LEGACY_ABI, CONTRACT_ADDRESS } from "../lib/contract";
+import { ARC_TESTNET, explorerTx, fmtUsdc, shortAddress } from "../lib/chain";
+
+interface ExplorerLog {
+  topics: string[];
+  data: string;
+  blockNumber: string;
+  logIndex: string;
+  transactionHash: string;
+}
 
 interface Item {
   key: string;
@@ -11,9 +19,9 @@ interface Item {
   hash: string;
 }
 
-function describe(ev: EventLog, account: string): string {
+function describe(ev: LogDescription, account: string): string {
   const a = ev.args;
-  switch (ev.eventName) {
+  switch (ev.name) {
     case "Deposited":
       return `Deposited ${fmtUsdc(a.amount)} USDC`;
     case "Withdrawn":
@@ -31,55 +39,63 @@ function describe(ev: EventLog, account: string): string {
         ? `Claimed ${fmtUsdc(a.amount)} USDC from ${shortAddress(a.owner)}`
         : `${shortAddress(a.beneficiary)} claimed ${fmtUsdc(a.amount)} USDC`;
     default:
-      return ev.eventName;
+      return ev.name;
   }
 }
 
+/** True when the event belongs on this account's feed. */
+function involves(ev: LogDescription, account: string): boolean {
+  const me = account.toLowerCase();
+  const owner = (ev.args.owner as string | undefined)?.toLowerCase();
+  if (owner === me) return true;
+  if (ev.name === "Claimed") {
+    return (ev.args.beneficiary as string).toLowerCase() === me;
+  }
+  return false;
+}
+
 export function ActivityWidget({ wallet }: { wallet: WalletState }) {
-  const { account, provider } = wallet;
+  const { account } = wallet;
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!provider || !account) return;
-    const contract = getContract(provider);
-    const filters = [
-      contract.filters.Deposited(account),
-      contract.filters.Withdrawn(account),
-      contract.filters.CheckedIn(account),
-      contract.filters.IntervalSet(account),
-      contract.filters.BeneficiariesSet(account),
-      contract.filters.EstateUnlocked(account),
-      contract.filters.Claimed(account),
-      contract.filters.Claimed(null, account),
-    ];
-    Promise.all(filters.map((f) => contract.queryFilter(f, 0)))
-      .then((results) => {
-        const seen = new Set<string>();
-        const list = results
-          .flat()
-          .filter((ev): ev is EventLog => ev instanceof EventLog)
-          .sort(
-            (x, y) => y.blockNumber - x.blockNumber || y.index - x.index
+    if (!account) return;
+    const iface = new Interface(ARC_LEGACY_ABI);
+    // The public RPC caps eth_getLogs at a 10k-block range, so the full
+    // history comes from the explorer's indexed logs API instead.
+    fetch(
+      `${ARC_TESTNET.explorerUrl}/api?module=logs&action=getLogs` +
+        `&address=${CONTRACT_ADDRESS}&fromBlock=0&toBlock=latest`
+    )
+      .then((res) => res.json())
+      .then((json: { result?: ExplorerLog[] | string }) => {
+        if (!Array.isArray(json.result)) {
+          throw new Error(String(json.result ?? "explorer API error"));
+        }
+        const list = json.result
+          .map((log) => ({
+            log,
+            parsed: iface.parseLog({ topics: log.topics, data: log.data }),
+          }))
+          .filter(
+            (x): x is { log: ExplorerLog; parsed: LogDescription } =>
+              x.parsed !== null && involves(x.parsed, account)
           )
-          .filter((ev) => {
-            const key = `${ev.transactionHash}:${ev.index}`;
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          })
-          .slice(0, 12)
-          .map((ev) => ({
-            key: `${ev.transactionHash}:${ev.index}`,
-            label: describe(ev, account),
-            block: ev.blockNumber,
-            hash: ev.transactionHash,
-          }));
+          .map(({ log, parsed }) => ({
+            key: `${log.transactionHash}:${Number(log.logIndex)}`,
+            label: describe(parsed, account),
+            block: Number(log.blockNumber),
+            index: Number(log.logIndex),
+            hash: log.transactionHash,
+          }))
+          .sort((a, b) => b.block - a.block || b.index - a.index)
+          .slice(0, 12);
         setItems(list);
         setError(null);
       })
       .catch((err) => setError((err as Error).message));
-  }, [provider, account]);
+  }, [account]);
 
   return (
     <section className="card">

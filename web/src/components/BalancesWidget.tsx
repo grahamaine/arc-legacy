@@ -2,26 +2,30 @@ import { useCallback, useEffect, useState } from "react";
 import { Contract, formatUnits } from "ethers";
 import type { WalletState } from "../hooks/useWallet";
 import { ARC_EURC_ADDRESS } from "../lib/appkit";
-import { fmtUsdc } from "../lib/chain";
+import { fmtUsdc, getReadProvider } from "../lib/chain";
 
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function decimals() view returns (uint8)",
 ];
 
+let eurcDecimals: Promise<number> | null = null;
+
 export function BalancesWidget({ wallet }: { wallet: WalletState }) {
-  const { account, provider } = wallet;
+  const { account } = wallet;
   const [usdc, setUsdc] = useState<bigint | null>(null);
   const [eurc, setEurc] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
-    if (!provider || !account) return;
+    if (!account) return;
+    const provider = getReadProvider();
     provider.getBalance(account).then(setUsdc).catch(() => {});
     const token = new Contract(ARC_EURC_ADDRESS, ERC20_ABI, provider);
-    Promise.all([token.balanceOf(account), token.decimals()])
+    if (!eurcDecimals) eurcDecimals = token.decimals().then(Number);
+    Promise.all([token.balanceOf(account), eurcDecimals])
       .then(([bal, dec]) => setEurc(formatUnits(bal, dec)))
       .catch(() => setEurc(null));
-  }, [provider, account]);
+  }, [account]);
 
   useEffect(() => {
     refresh();

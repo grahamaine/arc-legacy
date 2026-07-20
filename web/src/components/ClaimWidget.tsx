@@ -4,10 +4,10 @@ import type { WalletState } from "../hooks/useWallet";
 import { useTx } from "../hooks/useTx";
 import { TxStatusLine } from "./TxStatusLine";
 import { fetchEstate, getContract, type EstateView } from "../lib/contract";
-import { fmtUsdc, shortAddress } from "../lib/chain";
+import { fmtUsdc, getReadProvider, shortAddress } from "../lib/chain";
 
 export function ClaimWidget({ wallet }: { wallet: WalletState }) {
-  const { account, provider } = wallet;
+  const { account } = wallet;
   const [ownerInput, setOwnerInput] = useState("");
   const [owner, setOwner] = useState<string | null>(null);
   const [estate, setEstate] = useState<EstateView | null>(null);
@@ -17,10 +17,11 @@ export function ClaimWidget({ wallet }: { wallet: WalletState }) {
   const [error, setError] = useState<string | null>(null);
 
   const load = async (address: string) => {
-    if (!provider || !account) return;
+    if (!account) return;
     setLoading(true);
     setError(null);
     try {
+      const provider = getReadProvider();
       const contract = getContract(provider);
       const [estateView, isClaimable, hasClaimed] = await Promise.all([
         fetchEstate(provider, address),
@@ -43,7 +44,7 @@ export function ClaimWidget({ wallet }: { wallet: WalletState }) {
   // Prefill from a shared claim link: /?owner=0x…
   const prefilled = useRef(false);
   useEffect(() => {
-    if (prefilled.current || !provider || !account) return;
+    if (prefilled.current || !account) return;
     const param = new URLSearchParams(location.search).get("owner");
     if (param && isAddress(param)) {
       prefilled.current = true;
@@ -51,7 +52,7 @@ export function ClaimWidget({ wallet }: { wallet: WalletState }) {
       load(param);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [provider, account]);
+  }, [account]);
 
   const myShare =
     account && estate

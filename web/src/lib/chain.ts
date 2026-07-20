@@ -1,4 +1,4 @@
-import { formatEther } from "ethers";
+import { formatEther, JsonRpcProvider } from "ethers";
 
 export const ARC_TESTNET = {
   chainId: 5042002,
@@ -9,6 +9,19 @@ export const ARC_TESTNET = {
   // On Arc the native gas token is USDC (18 decimals at the EVM level).
   nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
 } as const;
+
+// The public Arc RPC rate-limits aggressively, so all reads go through one
+// shared provider with small request batches; the wallet is only used to sign.
+let readProvider: JsonRpcProvider | null = null;
+export function getReadProvider(): JsonRpcProvider {
+  if (!readProvider) {
+    readProvider = new JsonRpcProvider(ARC_TESTNET.rpcUrl, ARC_TESTNET.chainId, {
+      staticNetwork: true,
+      batchMaxCount: 5,
+    });
+  }
+  return readProvider;
+}
 
 export function explorerTx(hash: string): string {
   return `${ARC_TESTNET.explorerUrl}/tx/${hash}`;

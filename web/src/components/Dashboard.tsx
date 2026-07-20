@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { WalletState } from "../hooks/useWallet";
 import { CONTRACT_ADDRESS, fetchEstate, type EstateView } from "../lib/contract";
+import { getReadProvider } from "../lib/chain";
 import { VaultWidget } from "./VaultWidget";
 import { DepositWidget } from "./DepositWidget";
 import { WithdrawWidget } from "./WithdrawWidget";
@@ -15,19 +16,27 @@ import { YieldWidget } from "./YieldWidget";
 import { TreasuryWidget } from "./TreasuryWidget";
 
 export function Dashboard({ wallet }: { wallet: WalletState }) {
-  const { account, provider } = wallet;
+  const { account } = wallet;
   const [estate, setEstate] = useState<EstateView | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
-    if (!provider || !account || !CONTRACT_ADDRESS) return;
-    fetchEstate(provider, account)
-      .then((e) => {
-        setEstate(e);
-        setLoadError(null);
-      })
-      .catch((err) => setLoadError((err as Error).message));
-  }, [provider, account]);
+    if (!account || !CONTRACT_ADDRESS) return;
+    const attempt = (retriesLeft: number) =>
+      fetchEstate(getReadProvider(), account)
+        .then((e) => {
+          setEstate(e);
+          setLoadError(null);
+        })
+        .catch((err) => {
+          if (retriesLeft > 0) {
+            setTimeout(() => attempt(retriesLeft - 1), 2000);
+          } else {
+            setLoadError((err as Error).message);
+          }
+        });
+    attempt(2);
+  }, [account]);
 
   useEffect(refresh, [refresh]);
 
