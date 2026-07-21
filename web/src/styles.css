@@ -25,7 +25,7 @@ body {
   letter-spacing: 0.015em;
   background:
     radial-gradient(1200px 700px at 50% -10%, rgba(20, 143, 149, 0.12), transparent 60%),
-    linear-gradient(rgba(228, 235, 245, 0.6), rgba(216, 227, 243, 0.72)),
+    linear-gradient(rgba(230, 237, 247, 0.68), rgba(219, 229, 244, 0.8)),
     url("/bg.png") center / cover no-repeat fixed var(--bg);
   color: var(--text);
   line-height: 1.5;
