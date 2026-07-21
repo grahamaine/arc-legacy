@@ -73,11 +73,11 @@ header {
 }
 
 .logo {
-  width: 54px;
-  height: 54px;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   object-fit: cover;
-  box-shadow: 0 0 16px rgba(74, 140, 240, 0.4);
+  box-shadow: 0 0 14px rgba(74, 140, 240, 0.38);
 }
 
 .brand h1 {
@@ -441,11 +441,11 @@ footer a {
 }
 
 .hero-logo {
-  width: 172px;
-  height: 172px;
-  border-radius: 22px;
+  width: 120px;
+  height: 120px;
+  border-radius: 18px;
   object-fit: cover;
-  box-shadow: 0 0 42px rgba(74, 140, 240, 0.32);
+  box-shadow: 0 0 34px rgba(74, 140, 240, 0.3);
   margin-bottom: 1rem;
 }
 
@@ -607,9 +607,9 @@ footer {
 }
 
 .splash-logo {
-  width: 212px;
-  height: 212px;
-  border-radius: 24px;
+  width: 156px;
+  height: 156px;
+  border-radius: 20px;
   object-fit: cover;
   animation: splashLogoIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both,
     logoGlow 2.6s ease-in-out 0.9s infinite;
@@ -617,8 +617,8 @@ footer {
 
 .splash-ring {
   position: absolute;
-  width: 250px;
-  height: 250px;
+  width: 196px;
+  height: 196px;
   border-radius: 50%;
   border: 2px solid rgba(74, 140, 240, 0.35);
   animation: splashRing 1.8s ease-out infinite;
