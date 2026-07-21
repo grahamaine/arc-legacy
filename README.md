@@ -5,7 +5,7 @@
 Built for the **Build on Arc** hackathon (DeFi track).
 
 **Live app:** https://arc-legacy-eight.vercel.app
-**Contract (Arc testnet):** [`0x4DB6268FC91E941Cb67f465639fAf540d52Eee57`](https://testnet.arcscan.app/address/0x4DB6268FC91E941Cb67f465639fAf540d52Eee57)
+**Contract (Arc testnet):** [`0x03f169e89F45b1E1689C96d1fCfbd3a8888DDD47`](https://testnet.arcscan.app/address/0x03f169e89F45b1E1689C96d1fCfbd3a8888DDD47)
 
 ## The idea
 
