@@ -14,11 +14,23 @@ import { SendWidget } from "./SendWidget";
 import { ActivityWidget } from "./ActivityWidget";
 import { YieldWidget } from "./YieldWidget";
 import { TreasuryWidget } from "./TreasuryWidget";
+import { AgentWidget } from "./AgentWidget";
+import { AgentMarketplaceWidget } from "./AgentMarketplaceWidget";
+
+type SectionKey = "estate" | "wallet" | "earn" | "agents";
+
+const SECTIONS: { key: SectionKey; label: string; icon: string }[] = [
+  { key: "estate", label: "Estate", icon: "🏛️" },
+  { key: "wallet", label: "Wallet", icon: "👛" },
+  { key: "earn", label: "Earn", icon: "📈" },
+  { key: "agents", label: "Agents", icon: "🤖" },
+];
 
 export function Dashboard({ wallet }: { wallet: WalletState }) {
   const { account } = wallet;
   const [estate, setEstate] = useState<EstateView | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [section, setSection] = useState<SectionKey>("estate");
 
   const refresh = useCallback(() => {
     if (!account || !CONTRACT_ADDRESS) return;
@@ -41,36 +53,71 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
   useEffect(refresh, [refresh]);
 
   return (
-    <>
-      {loadError && (
-        <p className="banner warning">Could not load estate: {loadError}</p>
-      )}
-      <div className="grid">
-        {CONTRACT_ADDRESS ? (
-          <>
-            <VaultWidget wallet={wallet} estate={estate} refresh={refresh} />
-            <DepositWidget wallet={wallet} estate={estate} refresh={refresh} />
-            <WithdrawWidget wallet={wallet} estate={estate} refresh={refresh} />
-            <HeirsWidget wallet={wallet} estate={estate} refresh={refresh} />
-            <ClaimWidget wallet={wallet} />
-            <ActivityWidget wallet={wallet} />
-          </>
-        ) : (
-          <section className="card">
-            <h3>Vault</h3>
-            <p className="hint">
-              The ArcLegacy contract is not deployed yet. Vault features unlock
-              once it's live on Arc testnet.
-            </p>
-          </section>
+    <div className="dash-layout">
+      <nav className="sidebar" aria-label="Dashboard sections">
+        {SECTIONS.map((s) => (
+          <button
+            key={s.key}
+            className={section === s.key ? "nav-item active" : "nav-item"}
+            aria-current={section === s.key ? "page" : undefined}
+            onClick={() => setSection(s.key)}
+          >
+            <span className="nav-icon">{s.icon}</span>
+            {s.label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="dash-main">
+        {loadError && (
+          <p className="banner warning">Could not load estate: {loadError}</p>
         )}
-        <BalancesWidget wallet={wallet} />
-        <SendWidget wallet={wallet} />
-        <SwapWidget wallet={wallet} />
-        <BridgeWidget wallet={wallet} />
-        <YieldWidget wallet={wallet} />
-        <TreasuryWidget wallet={wallet} />
+
+        <div className="grid" key={section}>
+          {section === "estate" &&
+            (CONTRACT_ADDRESS ? (
+              <>
+                <VaultWidget wallet={wallet} estate={estate} refresh={refresh} />
+                <DepositWidget wallet={wallet} estate={estate} refresh={refresh} />
+                <WithdrawWidget wallet={wallet} estate={estate} refresh={refresh} />
+                <HeirsWidget wallet={wallet} estate={estate} refresh={refresh} />
+                <ClaimWidget wallet={wallet} />
+                <ActivityWidget wallet={wallet} />
+              </>
+            ) : (
+              <section className="card">
+                <h3>Vault</h3>
+                <p className="hint">
+                  The ArcLegacy contract is not deployed yet. Vault features unlock
+                  once it's live on Arc testnet.
+                </p>
+              </section>
+            ))}
+
+          {section === "wallet" && (
+            <>
+              <BalancesWidget wallet={wallet} />
+              <SendWidget wallet={wallet} />
+              <SwapWidget wallet={wallet} />
+              <BridgeWidget wallet={wallet} />
+            </>
+          )}
+
+          {section === "earn" && (
+            <>
+              <YieldWidget wallet={wallet} />
+              <TreasuryWidget wallet={wallet} />
+            </>
+          )}
+
+          {section === "agents" && (
+            <>
+              <AgentWidget wallet={wallet} refresh={refresh} />
+              <AgentMarketplaceWidget wallet={wallet} />
+            </>
+          )}
+        </div>
       </div>
-    </>
+    </div>
   );
 }
