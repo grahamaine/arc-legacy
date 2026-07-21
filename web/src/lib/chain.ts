@@ -1,5 +1,9 @@
 import { formatEther, JsonRpcProvider } from "ethers";
 
+// Arc Legacy treasury wallet — the app's default destination for payments and
+// the default refund address. Editable per-payment in the Payments widget.
+export const ARC_LEGACY_TREASURY = "0xD2965d3c68a1C43ac06e336813912742D852415c";
+
 export const ARC_TESTNET = {
   chainId: 5042002,
   chainIdHex: "0x4cef52",

@@ -111,7 +111,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
               <BalancesWidget wallet={wallet} />
               <UnifiedBalanceWidget wallet={wallet} />
               <SendWidget wallet={wallet} />
-              <PaymentsWidget wallet={wallet} />
+              <PaymentsWidget />
               <SwapWidget wallet={wallet} />
               <BridgeWidget wallet={wallet} />
             </>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { isAddress } from "ethers";
-import type { WalletState } from "../hooks/useWallet";
+import { ARC_LEGACY_TREASURY } from "../lib/chain";
 
 /**
  * Payments — accept payments into the app. Captures the merchant settlement,
@@ -9,16 +9,16 @@ import type { WalletState } from "../hooks/useWallet";
  * hosted exchange checkout and on-chain fee/refund routing need the Circle
  * Payments API / a payments contract, so those are labeled previews.
  */
-export function PaymentsWidget({ wallet }: { wallet: WalletState }) {
-  const [settle, setSettle] = useState(wallet.account ?? "");
-  const [fee, setFee] = useState("");
-  const [refund, setRefund] = useState("");
+export function PaymentsWidget() {
+  const [settle, setSettle] = useState(ARC_LEGACY_TREASURY);
+  const [fee, setFee] = useState(ARC_LEGACY_TREASURY);
+  const [refund, setRefund] = useState(ARC_LEGACY_TREASURY);
   const [amount, setAmount] = useState("");
   const [link, setLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const settleAddr = settle || wallet.account || "";
+  const settleAddr = settle || ARC_LEGACY_TREASURY;
 
   const create = () => {
     setError(null);
