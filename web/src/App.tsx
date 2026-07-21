@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useWallet } from "./hooks/useWallet";
 import { Dashboard } from "./components/Dashboard";
 import { Splash } from "./components/Splash";
+import { ConnectPanel } from "./components/ConnectPanel";
 import { CONTRACT_ADDRESS } from "./lib/contract";
 import { ARC_TESTNET, explorerAddress, shortAddress } from "./lib/chain";
 
@@ -47,19 +48,22 @@ export default function App() {
       {wallet.account ? (
         <Dashboard wallet={wallet} />
       ) : (
-        <div className="hero">
-          <img className="hero-logo" src="/logo.png" alt="" />
-          <h2>On-chain estate planning, settled in dollars.</h2>
-          <ol>
-            <li>Deposit USDC into your vault.</li>
-            <li>Name your heirs and their shares.</li>
-            <li>Check in to prove you're alive.</li>
-            <li>If you go silent, your heirs claim directly — no probate.</li>
-          </ol>
-          <p className="hint">
-            Runs on {ARC_TESTNET.name} (chain {ARC_TESTNET.chainId}), where USDC
-            is the native gas token.
-          </p>
+        <div className="landing">
+          <div className="hero">
+            <img className="hero-logo" src="/logo.png" alt="" />
+            <h2>On-chain estate planning, settled in dollars.</h2>
+            <ol>
+              <li>Deposit USDC into your vault.</li>
+              <li>Name your heirs and their shares.</li>
+              <li>Check in to prove you're alive.</li>
+              <li>If you go silent, your heirs claim directly — no probate.</li>
+            </ol>
+            <p className="hint">
+              Runs on {ARC_TESTNET.name} (chain {ARC_TESTNET.chainId}), where
+              USDC is the native gas token.
+            </p>
+          </div>
+          <ConnectPanel wallet={wallet} />
         </div>
       )}
 

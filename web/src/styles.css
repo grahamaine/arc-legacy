@@ -962,3 +962,97 @@ footer {
   padding: 0.4rem 0.85rem;
   font-size: 0.82rem;
 }
+
+/* ---------- Landing page + connect panel ---------- */
+
+.landing {
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;
+  margin-top: 1rem;
+}
+
+.landing .hero {
+  flex: 1;
+  margin-top: 0;
+}
+
+.connect-card {
+  flex: 0 0 360px;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 820px) {
+  .landing {
+    flex-direction: column;
+  }
+  .connect-card {
+    flex: none;
+    width: 100%;
+  }
+}
+
+.connect-tabs {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.25rem;
+  margin: 0.7rem 0 1rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.connect-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-dim);
+  padding: 0.5rem;
+}
+
+.connect-tab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.connect-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.connect-cta {
+  width: 100%;
+}
+
+.otp-preview {
+  margin: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.capability {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+
+.capability-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 1.6s ease-in-out infinite;
+}

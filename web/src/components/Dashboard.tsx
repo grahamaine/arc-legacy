@@ -8,6 +8,7 @@ import { WithdrawWidget } from "./WithdrawWidget";
 import { HeirsWidget } from "./HeirsWidget";
 import { ClaimWidget } from "./ClaimWidget";
 import { BalancesWidget } from "./BalancesWidget";
+import { UnifiedBalanceWidget } from "./UnifiedBalanceWidget";
 import { SwapWidget } from "./SwapWidget";
 import { BridgeWidget } from "./BridgeWidget";
 import { SendWidget } from "./SendWidget";
@@ -105,6 +106,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
           {section === "wallet" && (
             <>
               <BalancesWidget wallet={wallet} />
+              <UnifiedBalanceWidget wallet={wallet} />
               <SendWidget wallet={wallet} />
               <SwapWidget wallet={wallet} />
               <BridgeWidget wallet={wallet} />
