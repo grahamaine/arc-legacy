@@ -1,16 +1,18 @@
 :root {
-  --bg: #0c1626;
-  --surface: rgba(28, 42, 62, 0.72);
-  --surface-2: rgba(42, 58, 82, 0.75);
-  --border: #3d5471;
-  --text: #eef3f9;
-  --text-dim: #aebfd1;
-  --accent: #3fc4c9;
-  --accent-hover: #63d8dc;
-  --green: #3fb970;
-  --amber: #e0a63a;
-  --red: #e5636e;
-  --radius: 10px;
+  --bg: #e7edf6;
+  --surface: rgba(255, 255, 255, 0.74);
+  --surface-2: rgba(255, 255, 255, 0.9);
+  --border: #c6d3e4;
+  --text: #172436;
+  --text-dim: #566579;
+  --accent: #148f95;
+  --accent-hover: #1cb0b7;
+  --green: #2f9e5c;
+  --amber: #c1871c;
+  --red: #d6475a;
+  --radius: 12px;
+  --shadow: 0 6px 22px rgba(23, 43, 71, 0.1);
+  --shadow-hover: 0 14px 34px rgba(20, 143, 149, 0.22);
 }
 
 * {
@@ -22,7 +24,8 @@ body {
   font-family: "Oswald", "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0.015em;
   background:
-    linear-gradient(rgba(16, 28, 46, 0.45), rgba(12, 22, 38, 0.68)),
+    radial-gradient(1200px 700px at 50% -10%, rgba(20, 143, 149, 0.12), transparent 60%),
+    linear-gradient(rgba(228, 235, 245, 0.6), rgba(216, 227, 243, 0.72)),
     url("/bg.png") center / cover no-repeat fixed var(--bg);
   color: var(--text);
   line-height: 1.5;
@@ -182,10 +185,37 @@ button.ghost {
 }
 
 .card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1.1rem 1.25rem;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+/* Animated accent bar that sweeps across the top of each card */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-hover), transparent);
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  animation: sheen 3.5s linear infinite;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent);
+}
+
+.card:hover::before {
+  opacity: 1;
 }
 
 .card h3 {
@@ -436,4 +466,204 @@ footer {
   padding-top: 1rem;
   border-top: 1px solid var(--border);
   font-size: 0.85rem;
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheen {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes logoGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 14px rgba(20, 143, 149, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 26px rgba(28, 176, 183, 0.7);
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Staggered entrance for dashboard widgets and the hero */
+.grid > .card,
+.hero {
+  animation: rise 0.5s ease both;
+}
+
+.grid > .card:nth-child(1) { animation-delay: 0.04s; }
+.grid > .card:nth-child(2) { animation-delay: 0.1s; }
+.grid > .card:nth-child(3) { animation-delay: 0.16s; }
+.grid > .card:nth-child(4) { animation-delay: 0.22s; }
+.grid > .card:nth-child(5) { animation-delay: 0.28s; }
+.grid > .card:nth-child(6) { animation-delay: 0.34s; }
+.grid > .card:nth-child(7) { animation-delay: 0.4s; }
+.grid > .card:nth-child(8) { animation-delay: 0.46s; }
+.grid > .card:nth-child(9) { animation-delay: 0.52s; }
+.grid > .card:nth-child(10) { animation-delay: 0.58s; }
+.grid > .card:nth-child(11) { animation-delay: 0.64s; }
+.grid > .card:nth-child(12) { animation-delay: 0.7s; }
+
+/* Header logo breathes with a soft teal glow */
+.logo {
+  animation: logoGlow 3.5s ease-in-out infinite;
+}
+
+/* Stat tiles lift subtly on hover */
+.stat {
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.hero {
+  box-shadow: var(--shadow);
+}
+
+.hero-logo {
+  animation: floaty 5s ease-in-out infinite, logoGlow 3.5s ease-in-out infinite;
+}
+
+/* Progress fill gets an animated sheen */
+.progress-fill {
+  background-image: linear-gradient(
+    90deg,
+    var(--green),
+    #57c98a,
+    var(--green)
+  );
+  background-size: 200% 100%;
+  animation: sheen 2.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- Splash screen ---------- */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  background:
+    radial-gradient(900px 600px at 50% 40%, rgba(20, 143, 149, 0.16), transparent 65%),
+    linear-gradient(160deg, #eef3fa, #dbe6f4 60%, #cdd8ea 100%);
+  background-color: var(--bg);
+  animation: splashOut 0.6s ease 1.9s forwards;
+}
+
+.splash.hidden {
+  display: none;
+}
+
+.splash-logo {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  animation: splashLogoIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both,
+    logoGlow 2.6s ease-in-out 0.9s infinite;
+}
+
+.splash-ring {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  border: 2px solid rgba(20, 143, 149, 0.35);
+  animation: splashRing 1.8s ease-out infinite;
+}
+
+.splash-title {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+  opacity: 0;
+  animation: rise 0.7s ease 0.4s forwards;
+}
+
+.splash-tagline {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  animation: rise 0.7s ease 0.6s forwards;
+}
+
+@keyframes splashLogoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes splashRing {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes splashOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash {
+    animation: splashOut 0.3s ease 1.4s forwards;
+  }
 }

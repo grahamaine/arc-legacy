@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useWallet } from "./hooks/useWallet";
 import { Dashboard } from "./components/Dashboard";
+import { Splash } from "./components/Splash";
 import { CONTRACT_ADDRESS } from "./lib/contract";
 import { ARC_TESTNET, explorerAddress, shortAddress } from "./lib/chain";
 
@@ -13,6 +14,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <Splash />
       <header>
         <div className="brand">
           <img className="logo" src="/logo.png" alt="Arc Legacy medallion" />
