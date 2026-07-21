@@ -1036,6 +1036,20 @@ footer {
   font-variant-numeric: tabular-nums;
 }
 
+.pay-link {
+  padding: 0.5rem 0.7rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  word-break: break-all;
+  font-size: 0.8rem;
+}
+
+.pay-link a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
 .connect-alt {
   display: flex;
   flex-direction: column;
