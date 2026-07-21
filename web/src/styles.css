@@ -1,5 +1,5 @@
 :root {
-  --bg: #e7edf6;
+  --bg: #eef2f8;
   --surface: rgba(255, 255, 255, 0.74);
   --surface-2: rgba(255, 255, 255, 0.9);
   --border: #c6d3e4;
@@ -24,8 +24,8 @@ body {
   font-family: "Oswald", "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0.015em;
   background:
-    radial-gradient(1200px 700px at 50% -10%, rgba(20, 143, 149, 0.12), transparent 60%),
-    linear-gradient(rgba(230, 237, 247, 0.68), rgba(219, 229, 244, 0.8)),
+    radial-gradient(1100px 650px at 50% -8%, rgba(74, 140, 240, 0.1), transparent 60%),
+    linear-gradient(rgba(244, 247, 251, 0.44), rgba(233, 240, 249, 0.58)),
     url("/bg.png") center / cover no-repeat fixed var(--bg);
   color: var(--text);
   line-height: 1.5;
@@ -45,10 +45,17 @@ input {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   align-items: start;
-  justify-content: center;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 header {
@@ -66,10 +73,11 @@ header {
 }
 
 .logo {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  box-shadow: 0 0 14px rgba(63, 196, 201, 0.45);
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 0 16px rgba(74, 140, 240, 0.4);
 }
 
 .brand h1 {
@@ -433,10 +441,11 @@ footer a {
 }
 
 .hero-logo {
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
-  box-shadow: 0 0 40px rgba(63, 196, 201, 0.35);
+  width: 172px;
+  height: 172px;
+  border-radius: 22px;
+  object-fit: cover;
+  box-shadow: 0 0 42px rgba(74, 140, 240, 0.32);
   margin-bottom: 1rem;
 }
 
@@ -494,10 +503,10 @@ footer {
 @keyframes logoGlow {
   0%,
   100% {
-    box-shadow: 0 0 14px rgba(20, 143, 149, 0.4);
+    box-shadow: 0 0 16px rgba(74, 140, 240, 0.4);
   }
   50% {
-    box-shadow: 0 0 26px rgba(28, 176, 183, 0.7);
+    box-shadow: 0 0 30px rgba(96, 165, 250, 0.7);
   }
 }
 
@@ -598,9 +607,10 @@ footer {
 }
 
 .splash-logo {
-  width: 190px;
-  height: 190px;
-  border-radius: 50%;
+  width: 212px;
+  height: 212px;
+  border-radius: 24px;
+  object-fit: cover;
   animation: splashLogoIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both,
     logoGlow 2.6s ease-in-out 0.9s infinite;
 }
@@ -610,7 +620,7 @@ footer {
   width: 250px;
   height: 250px;
   border-radius: 50%;
-  border: 2px solid rgba(20, 143, 149, 0.35);
+  border: 2px solid rgba(74, 140, 240, 0.35);
   animation: splashRing 1.8s ease-out infinite;
 }
 
@@ -723,6 +733,17 @@ footer {
 .nav-icon {
   font-size: 1.15rem;
   line-height: 1;
+}
+
+.nav-disconnect {
+  margin-top: 0.5rem;
+  color: var(--text-dim);
+}
+
+.nav-item.nav-disconnect:hover {
+  color: var(--red);
+  background: var(--surface-2);
+  border-color: var(--red);
 }
 
 .dash-main {

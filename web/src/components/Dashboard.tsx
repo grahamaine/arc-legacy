@@ -66,6 +66,14 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
             {s.label}
           </button>
         ))}
+        <button
+          className="nav-item nav-disconnect"
+          onClick={wallet.disconnect}
+          title="Disconnect this wallet from the app"
+        >
+          <span className="nav-icon">⏻</span>
+          Disconnect
+        </button>
       </nav>
 
       <div className="dash-main">

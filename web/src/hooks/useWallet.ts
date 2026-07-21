@@ -17,6 +17,7 @@ export interface WalletState {
   wrongChain: boolean;
   provider: BrowserProvider | null;
   connect: () => Promise<void>;
+  disconnect: () => void;
   getSigner: () => Promise<JsonRpcSigner>;
 }
 
@@ -98,6 +99,10 @@ export function useWallet(): WalletState {
     setChainId(parseInt(id, 16));
   }, [ethereum]);
 
+  const disconnect = useCallback(() => {
+    setAccount(null);
+  }, []);
+
   const getSigner = useCallback(async () => {
     if (!provider) throw new Error("No wallet found.");
     if (chainId !== ARC_TESTNET.chainId && ethereum) {
@@ -112,6 +117,7 @@ export function useWallet(): WalletState {
     wrongChain: account !== null && chainId !== null && chainId !== ARC_TESTNET.chainId,
     provider,
     connect,
+    disconnect,
     getSigner,
   };
 }
