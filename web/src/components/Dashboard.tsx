@@ -15,6 +15,8 @@ import { SendWidget } from "./SendWidget";
 import { ActivityWidget } from "./ActivityWidget";
 import { YieldWidget } from "./YieldWidget";
 import { TreasuryWidget } from "./TreasuryWidget";
+import { BorrowWidget } from "./BorrowWidget";
+import { LiquidityWidget } from "./LiquidityWidget";
 import { AgentWidget } from "./AgentWidget";
 import { AgentMarketplaceWidget } from "./AgentMarketplaceWidget";
 
@@ -23,7 +25,7 @@ type SectionKey = "estate" | "wallet" | "earn" | "agents";
 const SECTIONS: { key: SectionKey; label: string; icon: string }[] = [
   { key: "estate", label: "Estate", icon: "🏛️" },
   { key: "wallet", label: "Wallet", icon: "👛" },
-  { key: "earn", label: "Earn", icon: "📈" },
+  { key: "earn", label: "DeFi", icon: "📈" },
   { key: "agents", label: "Agents", icon: "🤖" },
 ];
 
@@ -116,6 +118,8 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
           {section === "earn" && (
             <>
               <YieldWidget wallet={wallet} />
+              <BorrowWidget wallet={wallet} />
+              <LiquidityWidget wallet={wallet} />
               <TreasuryWidget wallet={wallet} />
             </>
           )}

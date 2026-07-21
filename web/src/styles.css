@@ -1036,6 +1036,57 @@ footer {
   font-variant-numeric: tabular-nums;
 }
 
+.connect-alt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.connect-alt-sep {
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-align: center;
+  position: relative;
+}
+
+.connect-alt-sep::before,
+.connect-alt-sep::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 32%;
+  height: 1px;
+  background: var(--border);
+}
+
+.connect-alt-sep::before {
+  left: 0;
+}
+
+.connect-alt-sep::after {
+  right: 0;
+}
+
+.connect-mobile {
+  display: block;
+  text-align: center;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.connect-mobile:hover {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
 .capability {
   display: flex;
   align-items: center;

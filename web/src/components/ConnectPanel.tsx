@@ -24,6 +24,13 @@ export function ConnectPanel({ wallet }: { wallet: WalletState }) {
   const connect = () =>
     wallet.connect().catch((err) => setConnectError((err as Error).message));
 
+  // Deep link that opens this dapp inside a mobile wallet's in-app browser,
+  // which injects a provider — no extension needed on phones.
+  const mobileLink =
+    typeof window !== "undefined"
+      ? `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`
+      : "#";
+
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const sendCode = () => {
@@ -76,6 +83,17 @@ export function ConnectPanel({ wallet }: { wallet: WalletState }) {
             {wallet.hasWallet ? "Connect wallet" : "No wallet detected"}
           </button>
           {connectError && <p className="hint error">{connectError}</p>}
+
+          <div className="connect-alt">
+            <span className="connect-alt-sep">on a phone?</span>
+            <a className="connect-mobile" href={mobileLink} rel="noreferrer">
+              📱 Open in wallet app
+            </a>
+            <p className="hint">
+              Opens Arc Legacy inside your mobile wallet's browser. More
+              WalletConnect wallets coming soon.
+            </p>
+          </div>
         </div>
       ) : (
         <div className="connect-body">
