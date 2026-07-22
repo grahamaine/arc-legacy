@@ -1,6 +1,6 @@
 // Minimal service worker so the app is installable (home screen / desktop) and
 // works offline. Bump CACHE to invalidate old caches on deploy.
-const CACHE = "arc-legacy-v1";
+const CACHE = "arc-legacy-v3";
 const ASSETS = [
   "/",
   "/index.html",

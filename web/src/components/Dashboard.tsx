@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import type { WalletState } from "../hooks/useWallet";
 import { CONTRACT_ADDRESS, fetchEstate, type EstateView } from "../lib/contract";
 import { getReadProvider } from "../lib/chain";
@@ -30,6 +30,19 @@ const SECTIONS: { key: SectionKey; label: string; icon: string }[] = [
   { key: "agents", label: "Agents", icon: "🤖" },
 ];
 
+// How many widgets each section renders — used to pick a balanced column count.
+const WIDGET_COUNTS: Record<SectionKey, number> = {
+  estate: 6,
+  wallet: 6,
+  earn: 4,
+  agents: 2,
+};
+
+// Balanced columns for n widgets: ~sqrt(n), capped at 3 so cards never get too narrow.
+function columnsFor(count: number): number {
+  return Math.max(1, Math.min(3, Math.ceil(Math.sqrt(count))));
+}
+
 export function Dashboard({ wallet }: { wallet: WalletState }) {
   const { account } = wallet;
   const [estate, setEstate] = useState<EstateView | null>(null);
@@ -58,7 +71,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
 
   return (
     <div className="dash-layout">
-      <nav className="sidebar" aria-label="Dashboard sections">
+      <nav className="topnav" aria-label="Dashboard sections">
         {SECTIONS.map((s) => (
           <button
             key={s.key}
@@ -85,7 +98,18 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
           <p className="banner warning">Could not load estate: {loadError}</p>
         )}
 
-        <div className="grid" key={section}>
+        <div
+          className="grid"
+          key={section}
+          style={
+            {
+              "--cols":
+                section === "estate" && !CONTRACT_ADDRESS
+                  ? 1
+                  : columnsFor(WIDGET_COUNTS[section]),
+            } as CSSProperties
+          }
+        >
           {section === "estate" &&
             (CONTRACT_ADDRESS ? (
               <>
