@@ -5,8 +5,9 @@ import { ARC_LEGACY_ABI, CONTRACT_ADDRESS } from "../lib/contract";
 import { ARC_TESTNET, explorerTx, fmtUsdc, shortAddress } from "../lib/chain";
 
 interface ExplorerLog {
-  topics: string[];
-  data: string;
+  // The explorer pads topics to length 4 with nulls, so entries may be null.
+  topics: (string | null)[];
+  data: string | null;
   blockNumber: string;
   logIndex: string;
   transactionHash: string;
@@ -74,13 +75,20 @@ export function ActivityWidget({ wallet }: { wallet: WalletState }) {
           throw new Error(String(json.result ?? "explorer API error"));
         }
         const list = json.result
-          .map((log) => ({
-            log,
-            parsed: iface.parseLog({ topics: log.topics, data: log.data }),
-          }))
+          .map((log) => {
+            try {
+              const parsed = iface.parseLog({
+                topics: log.topics.filter((t): t is string => t != null),
+                data: log.data ?? "0x",
+              });
+              return parsed ? { log, parsed } : null;
+            } catch {
+              return null;
+            }
+          })
           .filter(
             (x): x is { log: ExplorerLog; parsed: LogDescription } =>
-              x.parsed !== null && involves(x.parsed, account)
+              x !== null && involves(x.parsed, account)
           )
           .map(({ log, parsed }) => ({
             key: `${log.transactionHash}:${Number(log.logIndex)}`,
