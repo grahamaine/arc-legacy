@@ -1,6 +1,6 @@
 // Minimal service worker so the app is installable (home screen / desktop) and
 // works offline. Bump CACHE to invalidate old caches on deploy.
-const CACHE = "arc-legacy-v3";
+const CACHE = "arc-legacy-v4";
 const ASSETS = [
   "/",
   "/index.html",
@@ -42,8 +42,25 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cache-first for other GETs (hashed assets are immutable).
+  // Stale-while-revalidate: serve the cached copy fast, but refresh it in the
+  // background so changed assets (e.g. a new logo) self-heal on the next load.
   event.respondWith(
-    caches.match(request).then((cached) => cached || fetch(request))
+    caches.open(CACHE).then((cache) =>
+      cache.match(request).then((cached) => {
+        const network = fetch(request)
+          .then((res) => {
+            if (
+              res &&
+              res.status === 200 &&
+              new URL(request.url).origin === self.location.origin
+            ) {
+              cache.put(request, res.clone());
+            }
+            return res;
+          })
+          .catch(() => cached);
+        return cached || network;
+      })
+    )
   );
 });
