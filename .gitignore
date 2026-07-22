@@ -7,3 +7,9 @@ coverage.json
 dist/
 typechain-types/
 *.tsbuildinfo
+
+# Local presentation / scratch assets in the repo root (decks, mockups,
+# generated images, screenshots) — not part of the app. Anchored with a
+# leading slash so tracked images under web/public/ are unaffected.
+/*.png
+/*.pptx
