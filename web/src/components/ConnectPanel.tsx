@@ -10,8 +10,22 @@ type EmailStage = "enter" | "sent" | "verified";
  * backend API keys, so this demonstrates the flow without a real session; users
  * connect a browser wallet to actually transact.
  */
-export function ConnectPanel({ wallet }: { wallet: WalletState }) {
-  const [mode, setMode] = useState<Mode>("wallet");
+export function ConnectPanel({
+  wallet,
+  mode: modeProp,
+  onModeChange,
+}: {
+  wallet: WalletState;
+  /** Controlled selected tab. Falls back to internal state when omitted. */
+  mode?: Mode;
+  onModeChange?: (mode: Mode) => void;
+}) {
+  const [modeInternal, setModeInternal] = useState<Mode>("wallet");
+  const mode = modeProp ?? modeInternal;
+  const setMode = (next: Mode) => {
+    onModeChange?.(next);
+    if (modeProp === undefined) setModeInternal(next);
+  };
   const [connectError, setConnectError] = useState<string | null>(null);
 
   // Email OTP (preview) state
@@ -51,8 +65,8 @@ export function ConnectPanel({ wallet }: { wallet: WalletState }) {
   };
 
   return (
-    <section className="card connect-card">
-      <h3>Get started</h3>
+    <section className="card connect-card" id="connect">
+      <h3>{mode === "email" ? "Sign up" : "Log in"}</h3>
 
       <div className="connect-tabs">
         <button
