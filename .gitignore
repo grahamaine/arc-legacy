@@ -13,3 +13,5 @@ typechain-types/
 # leading slash so tracked images under web/public/ are unaffected.
 /*.png
 /*.pptx
+/*.lnk
+/*.html

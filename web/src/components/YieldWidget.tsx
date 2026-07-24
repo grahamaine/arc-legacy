@@ -83,8 +83,8 @@ export function YieldWidget({ wallet }: { wallet: WalletState }) {
     <section className="card">
       <h3>Yield</h3>
       <p className="hint">
-        Lend USDC into a Circle Earn vault on Arc and accrue yield (Earn Kit,
-        testnet preview).
+        Deposit USDC into a Circle Earn vault on Arc and accrue auto-compounding
+        yield (Earn Kit, testnet preview).
       </p>
       <div className="stat-row">
         <div className="stat">
@@ -104,7 +104,7 @@ export function YieldWidget({ wallet }: { wallet: WalletState }) {
           disabled={busy !== null || !Number(amount)}
           onClick={deposit}
         >
-          {busy === "deposit" ? "Depositing…" : "Lend"}
+          {busy === "deposit" ? "Depositing…" : "Deposit"}
         </button>
         <button
           disabled={busy !== null || !Number(amount)}

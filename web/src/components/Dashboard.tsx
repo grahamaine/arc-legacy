@@ -14,8 +14,10 @@ import { SwapWidget } from "./SwapWidget";
 import { BridgeWidget } from "./BridgeWidget";
 import { SendWidget } from "./SendWidget";
 import { ActivityWidget } from "./ActivityWidget";
+import { FxWidget } from "./FxWidget";
 import { YieldWidget } from "./YieldWidget";
 import { TreasuryWidget } from "./TreasuryWidget";
+import { LendingWidget } from "./LendingWidget";
 import { BorrowWidget } from "./BorrowWidget";
 import { LiquidityWidget } from "./LiquidityWidget";
 import { AgentWidget } from "./AgentWidget";
@@ -33,8 +35,8 @@ const SECTIONS: { key: SectionKey; label: string; icon: string }[] = [
 // How many widgets each section renders — used to pick a balanced column count.
 const WIDGET_COUNTS: Record<SectionKey, number> = {
   estate: 6,
-  wallet: 6,
-  earn: 4,
+  wallet: 7,
+  earn: 5,
   agents: 2,
 };
 
@@ -137,6 +139,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
               <SendWidget wallet={wallet} />
               <PaymentsWidget />
               <SwapWidget wallet={wallet} />
+              <FxWidget wallet={wallet} />
               <BridgeWidget wallet={wallet} />
             </>
           )}
@@ -144,6 +147,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
           {section === "earn" && (
             <>
               <YieldWidget wallet={wallet} />
+              <LendingWidget wallet={wallet} />
               <BorrowWidget wallet={wallet} />
               <LiquidityWidget wallet={wallet} />
               <TreasuryWidget wallet={wallet} />

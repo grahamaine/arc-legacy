@@ -68,10 +68,11 @@ export function SwapWidget({ wallet }: { wallet: WalletState }) {
 
   return (
     <section className="card">
-      <h3>Swap · FX</h3>
+      <h3>Swap</h3>
       <p className="hint">
-        Same-chain stablecoin FX on Arc via Circle App Kit — swap between
-        dollars (USDC) and euros (EURC), with a live quote before you commit.
+        Instant same-chain stablecoin swaps on Arc via Circle App Kit — swap
+        between dollars (USDC) and euros (EURC), with a live quote before you
+        commit. Need a locked FX rate? Use StableFX.
       </p>
       <div className="field-row">
         <input
