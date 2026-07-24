@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { WalletState } from "../hooks/useWallet";
 import { ARC_CHAIN, getAdapter, getAppKit, kitErrorMessage } from "../lib/appkit";
+import { KitTxLink } from "./KitTxLink";
 
 type Direction = "USDC->EURC" | "EURC->USDC";
 
@@ -28,6 +29,7 @@ export function FxWidget({ wallet }: { wallet: WalletState }) {
   const [locked, setLocked] = useState<LockedQuote | null>(null);
   const [remaining, setRemaining] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [tokenIn, tokenOut] =
@@ -52,6 +54,7 @@ export function FxWidget({ wallet }: { wallet: WalletState }) {
     setBusy("quote");
     setError(null);
     setMessage(null);
+    setTxHash(null);
     setLocked(null);
     try {
       const kit = await getAppKit();
@@ -87,16 +90,18 @@ export function FxWidget({ wallet }: { wallet: WalletState }) {
     setBusy("settle");
     setError(null);
     setMessage(null);
+    setTxHash(null);
     try {
       await wallet.getSigner(); // ensure we're connected on Arc
       const kit = await getAppKit();
       const adapter = await getAdapter();
-      await kit.swap({
+      const res = await kit.swap({
         from: { adapter, chain: ARC_CHAIN },
         tokenIn: locked.tokenIn,
         tokenOut: locked.tokenOut,
         amountIn: locked.amountIn,
       });
+      setTxHash((res as { txHash?: string })?.txHash ?? null);
       setMessage(
         `Settled ${locked.amountIn} ${locked.tokenIn} → ${locked.amountOut} ${locked.tokenOut} at ${locked.rate} ✓`
       );
@@ -180,7 +185,7 @@ export function FxWidget({ wallet }: { wallet: WalletState }) {
 
       {message && (
         <p className="hint" style={{ color: "var(--green)" }}>
-          {message}
+          {message} {txHash && <KitTxLink hash={txHash} />}
         </p>
       )}
       {error && <p className="hint error">{error}</p>}

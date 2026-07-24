@@ -7,6 +7,7 @@ import {
   getAppKit,
   kitErrorMessage,
 } from "../lib/appkit";
+import { KitTxLink } from "./KitTxLink";
 
 /** Pull a human-readable amount out of a loosely-typed kit result. */
 function pickAmount(value: unknown): string {
@@ -24,12 +25,14 @@ export function YieldWidget({ wallet }: { wallet: WalletState }) {
   const [position, setPosition] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const run = async (label: string, fn: () => Promise<void>) => {
     setBusy(label);
     setError(null);
     setMessage(null);
+    setTxHash(null);
     try {
       await wallet.getSigner(); // ensure we're on Arc
       await fn();
@@ -58,11 +61,12 @@ export function YieldWidget({ wallet }: { wallet: WalletState }) {
   const deposit = () =>
     run("deposit", async () => {
       const kit = await getAppKit();
-      await kit.earn.deposit({
+      const res = await kit.earn.deposit({
         from: await from(),
         vaultAddress: ARC_EARN_VAULT,
         amount,
       });
+      setTxHash((res as { txHash?: string })?.txHash ?? null);
       setMessage(`Deposited ${amount} USDC into the vault ✓`);
       setAmount("");
     });
@@ -70,11 +74,12 @@ export function YieldWidget({ wallet }: { wallet: WalletState }) {
   const withdraw = () =>
     run("withdraw", async () => {
       const kit = await getAppKit();
-      await kit.earn.withdraw({
+      const res = await kit.earn.withdraw({
         from: await from(),
         vaultAddress: ARC_EARN_VAULT,
         amount,
       });
+      setTxHash((res as { txHash?: string })?.txHash ?? null);
       setMessage(`Withdrew ${amount} USDC from the vault ✓`);
       setAmount("");
     });
@@ -116,7 +121,11 @@ export function YieldWidget({ wallet }: { wallet: WalletState }) {
       <button className="ghost" disabled={busy !== null} onClick={checkPosition}>
         {busy === "position" ? "Loading…" : "Check position"}
       </button>
-      {message && <p className="hint" style={{ color: "var(--green)" }}>{message}</p>}
+      {message && (
+        <p className="hint" style={{ color: "var(--green)" }}>
+          {message} {txHash && <KitTxLink hash={txHash} />}
+        </p>
+      )}
       {error && <p className="hint error">{error}</p>}
     </section>
   );

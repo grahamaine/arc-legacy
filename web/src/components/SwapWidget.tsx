@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { WalletState } from "../hooks/useWallet";
 import { ARC_CHAIN, getAdapter, getAppKit, kitErrorMessage } from "../lib/appkit";
+import { KitTxLink } from "./KitTxLink";
 
 type Direction = "USDC->EURC" | "EURC->USDC";
 
@@ -10,6 +11,7 @@ export function SwapWidget({ wallet }: { wallet: WalletState }) {
   const [busy, setBusy] = useState(false);
   const [quote, setQuote] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [tokenIn, tokenOut] =
@@ -47,16 +49,18 @@ export function SwapWidget({ wallet }: { wallet: WalletState }) {
     setBusy(true);
     setError(null);
     setMessage(null);
+    setTxHash(null);
     try {
       await wallet.getSigner(); // make sure we're connected on Arc
       const kit = await getAppKit();
       const adapter = await getAdapter();
-      await kit.swap({
+      const res = await kit.swap({
         from: { adapter, chain: ARC_CHAIN },
         tokenIn,
         tokenOut,
         amountIn: amount,
       });
+      setTxHash((res as { txHash?: string })?.txHash ?? null);
       setMessage(`Swapped ${amount} ${tokenIn} → ${tokenOut} ✓`);
       setAmount("");
     } catch (err) {
@@ -102,7 +106,11 @@ export function SwapWidget({ wallet }: { wallet: WalletState }) {
         </button>
       </div>
       {quote && <p className="hint" style={{ color: "var(--accent)" }}>{quote}</p>}
-      {message && <p className="hint" style={{ color: "var(--green)" }}>{message}</p>}
+      {message && (
+        <p className="hint" style={{ color: "var(--green)" }}>
+          {message} {txHash && <KitTxLink hash={txHash} />}
+        </p>
+      )}
       {error && <p className="hint error">{error}</p>}
     </section>
   );

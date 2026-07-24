@@ -7,6 +7,7 @@ import {
   getAppKit,
   kitErrorMessage,
 } from "../lib/appkit";
+import { KitTxLink } from "./KitTxLink";
 
 type SourceId = (typeof BRIDGE_SOURCES)[number]["id"];
 
@@ -15,22 +16,25 @@ export function BridgeWidget({ wallet }: { wallet: WalletState }) {
   const [source, setSource] = useState<SourceId>(BRIDGE_SOURCES[0].id);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const doBridge = async () => {
     setBusy(true);
     setError(null);
     setMessage(null);
+    setTxHash(null);
     try {
       if (!wallet.account) throw new Error("Connect your wallet first.");
       const kit = await getAppKit();
       const adapter = await getAdapter();
       setMessage("Bridging — approve the prompts in your wallet…");
-      await kit.bridge({
+      const res = await kit.bridge({
         from: { adapter, chain: source },
         to: { adapter, chain: ARC_CHAIN },
         amount,
       });
+      setTxHash((res as { txHash?: string })?.txHash ?? null);
       setMessage(`Bridged ${amount} USDC from ${source.replace(/_/g, " ")} to Arc ✓`);
       setAmount("");
     } catch (err) {
@@ -74,7 +78,16 @@ export function BridgeWidget({ wallet }: { wallet: WalletState }) {
           {busy ? "Bridging…" : "Bridge"}
         </button>
       </div>
-      {message && <p className="hint" style={{ color: "var(--amber)" }}>{message}</p>}
+      {message && (
+        <p className="hint" style={{ color: "var(--amber)" }}>
+          {message}{" "}
+          {txHash && (
+            <>
+              burn tx <KitTxLink hash={txHash} arc={false} />
+            </>
+          )}
+        </p>
+      )}
       {error && <p className="hint error">{error}</p>}
     </section>
   );
