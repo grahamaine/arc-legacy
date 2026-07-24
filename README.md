@@ -5,7 +5,8 @@
 Built for the **Build on Arc** hackathon (DeFi track).
 
 **Live app:** https://arc-legacy-eight.vercel.app
-**Contract (Arc testnet):** [`0x03f169e89F45b1E1689C96d1fCfbd3a8888DDD47`](https://testnet.arcscan.app/address/0x03f169e89F45b1E1689C96d1fCfbd3a8888DDD47)
+**Estate vault (Arc testnet):** [`0x03f169e89F45b1E1689C96d1fCfbd3a8888DDD47`](https://testnet.arcscan.app/address/0x03f169e89F45b1E1689C96d1fCfbd3a8888DDD47)
+**Payment router (Arc testnet):** [`0x3a210EF428ce1aF1549F0BcF60DA8B608C200630`](https://testnet.arcscan.app/address/0x3a210EF428ce1aF1549F0BcF60DA8B608C200630) — on-chain fee-split + conditional escrow in native USDC
 
 ## The idea
 
@@ -27,8 +28,9 @@ Billions in crypto are lost forever when holders die or lose access — there is
 | Path | Purpose |
 |---|---|
 | `contracts/ArcLegacy.sol` | Estate vault: deposits, beneficiaries, check-ins, claims |
-| `test/ArcLegacy.test.js` | Full unit test suite (Hardhat + ethers v6) |
-| `scripts/deploy.js` | Deploys to Arc testnet |
+| `contracts/PaymentRouter.sol` | Programmable USDC payments: atomic fee-split + conditional escrow |
+| `test/*.test.js` | Full unit test suites (Hardhat + ethers v6) |
+| `scripts/deploy.js`, `scripts/deployPaymentRouter.js` | Deploy to Arc testnet |
 | `web/` | React webapp (Vite + ethers v6): create estate, manage heirs, check in, claim |
 
 ## Getting started
