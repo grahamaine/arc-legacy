@@ -2,6 +2,7 @@ import { useWallet } from "./hooks/useWallet";
 import { Dashboard } from "./components/Dashboard";
 import { Splash } from "./components/Splash";
 import { Landing } from "./components/Landing";
+import { RainBackground } from "./components/RainBackground";
 import { CONTRACT_ADDRESS } from "./lib/contract";
 import { ARC_TESTNET, explorerAddress, shortAddress } from "./lib/chain";
 
@@ -12,6 +13,7 @@ export default function App() {
   if (!wallet.account) {
     return (
       <div className="app">
+        <RainBackground />
         <Splash />
         <Landing wallet={wallet} />
         <footer>
@@ -34,6 +36,7 @@ export default function App() {
   // Signed in → app header + dashboard.
   return (
     <div className="app">
+      <RainBackground />
       <Splash />
       <header>
         <div className="brand">

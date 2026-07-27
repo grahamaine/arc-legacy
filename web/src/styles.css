@@ -42,6 +42,26 @@ input {
   max-width: 1240px;
   margin: 0 auto;
   padding: 2rem 1.25rem 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ambient rain layer: fixed behind all content. The dashboard's translucent
+   cards let it subtly bleed through every widget, not just the gaps. */
+.rain-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rain-bg {
+    display: none;
+  }
 }
 
 .grid {
