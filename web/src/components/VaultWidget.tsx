@@ -27,6 +27,7 @@ export function VaultWidget({
   refresh: () => void;
 }) {
   const [intervalDays, setIntervalDays] = useState("");
+  const [vestDays, setVestDays] = useState("");
   const now = useNow();
   const tx = useTx(refresh);
 
@@ -69,6 +70,16 @@ export function VaultWidget({
             <span className="stat-label">Next check-in due</span>
             <span className="stat-value">
               {pastDeadline ? "Overdue" : `in ${fmtDuration(timeLeft)}`}
+            </span>
+          </div>
+        )}
+        {hasEstate && (
+          <div className="stat">
+            <span className="stat-label">Payout</span>
+            <span className="stat-value" style={{ fontSize: "1rem" }}>
+              {estate.vestingDuration > 0n
+                ? `Streamed over ${fmtDuration(estate.vestingDuration)}`
+                : "Lump sum"}
             </span>
           </div>
         )}
@@ -141,6 +152,36 @@ export function VaultWidget({
               }
             >
               Set days
+            </button>
+          </div>
+          <p className="hint" style={{ marginTop: "0.6rem" }}>
+            Vesting — stream each heir's share over this many days after unlock
+            (0 = immediate lump sum). Now:{" "}
+            {estate.vestingDuration > 0n
+              ? fmtDuration(estate.vestingDuration)
+              : "lump sum"}
+            .
+          </p>
+          <div className="field-row">
+            <input
+              placeholder="Vesting days (0 = lump sum)"
+              inputMode="numeric"
+              value={vestDays}
+              onChange={(e) => setVestDays(e.target.value)}
+            />
+            <button
+              disabled={tx.busy || vestDays === ""}
+              onClick={() =>
+                tx
+                  .run("Set vesting", async () =>
+                    getContract(await wallet.getSigner()).setVesting(
+                      BigInt(Math.round(Number(vestDays) * 86_400))
+                    )
+                  )
+                  .then(() => setVestDays(""))
+              }
+            >
+              Set vesting
             </button>
           </div>
         </>

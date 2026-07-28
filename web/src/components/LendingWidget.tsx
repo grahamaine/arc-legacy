@@ -1,51 +1,104 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { parseEther } from "ethers";
 import type { WalletState } from "../hooks/useWallet";
-
-const SUPPLY_APY = 0.052; // simulated supply APY
-const UTILIZATION = 0.68; // simulated market utilization
-const MARKET_SIZE = 1_240_000; // simulated total USDC supplied
+import { useTx } from "../hooks/useTx";
+import { TxStatusLine } from "./TxStatusLine";
+import { fmtUsdc, getReadProvider } from "../lib/chain";
+import {
+  YIELD_VAULT_ADDRESS,
+  fetchVaultPosition,
+  fetchVaultStats,
+  getYieldVault,
+  type VaultPosition,
+  type VaultStats,
+} from "../lib/yieldVault";
 
 /**
- * Lend USDC into a money market and earn interest — an interactive preview.
- * This is the supply side of the Borrow widget's market; no lending pool is
- * deployed on Arc yet, so the market stats and your position are simulated
- * locally to demonstrate supply / APY / interest-accrual mechanics.
+ * Lending — supply native USDC to the on-chain ArcYieldVault and earn interest.
+ * This is real: your principal and accrued interest are read live from the
+ * deployed contract, so they persist across sessions and wallets. Interest is
+ * paid strictly from the vault's reserve, so principal is always fully backed.
  */
 export function LendingWidget({ wallet }: { wallet: WalletState }) {
-  const [supplied, setSupplied] = useState(0);
+  const { account } = wallet;
+  const [stats, setStats] = useState<VaultStats | null>(null);
+  const [pos, setPos] = useState<VaultPosition | null>(null);
   const [amount, setAmount] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const num = Number(amount) || 0;
-  const dailyInterest = (supplied * SUPPLY_APY) / 365;
-  const share = supplied > 0 ? (supplied / (MARKET_SIZE + supplied)) * 100 : 0;
-  const disabled = !wallet.account || num <= 0;
+  const refresh = useCallback(() => {
+    if (!YIELD_VAULT_ADDRESS) return;
+    const provider = getReadProvider();
+    fetchVaultStats(provider).then(setStats).catch(() => {});
+    if (account) {
+      fetchVaultPosition(provider, account)
+        .then(setPos)
+        .catch((e) => setError((e as Error).message));
+    }
+  }, [account]);
+
+  useEffect(() => {
+    refresh();
+    const id = setInterval(refresh, 30_000);
+    return () => clearInterval(id);
+  }, [refresh]);
+
+  const tx = useTx(refresh);
+
+  if (!YIELD_VAULT_ADDRESS) {
+    return (
+      <section className="card">
+        <h3>Lending</h3>
+        <p className="hint">
+          The ArcYieldVault contract is not configured. Set VITE_YIELD_VAULT to
+          enable on-chain lending.
+        </p>
+      </section>
+    );
+  }
+
+  const apy = stats ? stats.rateBps / 100 : null;
+  const principal = pos?.principal ?? 0n;
+  const accrued = pos?.accrued ?? 0n;
+  let num = 0n;
+  try {
+    num = amount ? parseEther(amount) : 0n;
+  } catch {
+    num = 0n;
+  }
+  const busy = tx.busy;
+  const canSupply = !!account && num > 0n && !busy;
+  const canWithdraw = !!account && num > 0n && num <= principal && !busy;
+  const canClaim = !!account && accrued > 0n && !busy;
 
   return (
     <section className="card">
       <h3>Lending</h3>
       <p className="hint">
-        Supply USDC to the money market and earn interest (
-        {(SUPPLY_APY * 100).toFixed(1)}% APY at {(UTILIZATION * 100).toFixed(0)}%
-        utilization). Preview — market and position are simulated until a lending
-        pool is live on Arc.
+        Supply USDC to the on-chain money market and earn interest
+        {apy !== null ? ` (${apy.toFixed(1)}% APY)` : ""}. Real vault — positions
+        live on-chain; principal is always fully backed by the contract.
       </p>
 
       <div className="stat-row">
         <div className="stat">
-          <span className="stat-label">Supplied</span>
-          <span className="stat-value">{supplied.toFixed(2)} USDC</span>
+          <span className="stat-label">Your principal</span>
+          <span className="stat-value">{fmtUsdc(principal)} USDC</span>
+        </div>
+        <div className="stat">
+          <span className="stat-label">Interest earned</span>
+          <span className="stat-value">{fmtUsdc(accrued)} USDC</span>
         </div>
         <div className="stat">
           <span className="stat-label">Supply APY</span>
-          <span className="stat-value">{(SUPPLY_APY * 100).toFixed(1)}%</span>
+          <span className="stat-value">{apy !== null ? `${apy.toFixed(1)}%` : "—"}</span>
         </div>
         <div className="stat">
-          <span className="stat-label">Est. daily interest</span>
-          <span className="stat-value">{dailyInterest.toFixed(4)} USDC</span>
-        </div>
-        <div className="stat">
-          <span className="stat-label">Market share</span>
-          <span className="stat-value">{share.toFixed(3)}%</span>
+          <span className="stat-label">Market size</span>
+          <span className="stat-value">
+            {stats ? fmtUsdc(stats.totalPrincipal) : "—"}
+            <span className="stat-unit"> USDC</span>
+          </span>
         </div>
       </div>
 
@@ -58,24 +111,47 @@ export function LendingWidget({ wallet }: { wallet: WalletState }) {
         />
         <button
           className="primary"
-          disabled={disabled}
-          onClick={() => {
-            setSupplied((s) => s + num);
-            setAmount("");
-          }}
+          disabled={!canSupply}
+          onClick={() =>
+            tx
+              .run("Supply USDC", async () =>
+                getYieldVault(await wallet.getSigner()).supply({ value: num })
+              )
+              .then(() => setAmount(""))
+          }
         >
           Supply
         </button>
         <button
-          disabled={disabled || supplied <= 0}
-          onClick={() => {
-            setSupplied((s) => Math.max(0, s - num));
-            setAmount("");
-          }}
+          disabled={!canWithdraw}
+          onClick={() =>
+            tx
+              .run("Withdraw USDC", async () =>
+                getYieldVault(await wallet.getSigner()).withdraw(num)
+              )
+              .then(() => setAmount(""))
+          }
         >
           Withdraw
         </button>
       </div>
+
+      <button className="ghost" disabled={!canClaim} onClick={() =>
+        tx.run("Claim interest", async () =>
+          getYieldVault(await wallet.getSigner()).claimInterest()
+        )
+      }>
+        {accrued > 0n ? `Claim ${fmtUsdc(accrued)} USDC interest` : "No interest yet"}
+      </button>
+
+      {stats && stats.reserve === 0n && accrued > 0n && (
+        <p className="hint">
+          Interest reserve is empty right now, so claims are paused until it's
+          topped up — your principal stays fully withdrawable.
+        </p>
+      )}
+      {error && <p className="hint error">{error}</p>}
+      <TxStatusLine status={tx.status} />
     </section>
   );
 }

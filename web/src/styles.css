@@ -295,6 +295,12 @@ button.ghost {
   font-weight: 600;
 }
 
+.stat-unit {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
 .pill {
   align-self: flex-start;
   border-radius: 999px;
@@ -327,7 +333,8 @@ button.ghost {
 }
 
 input,
-select {
+select,
+textarea {
   font: inherit;
   flex: 1;
   background: var(--bg);
@@ -338,10 +345,41 @@ select {
   min-width: 0;
 }
 
+textarea {
+  width: 100%;
+  resize: vertical;
+  margin-top: 0.4rem;
+}
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.mini-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.2rem 0 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mini-list li {
+  font-size: 0.8rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1rem 0 0.8rem;
 }
 
 input.invalid {

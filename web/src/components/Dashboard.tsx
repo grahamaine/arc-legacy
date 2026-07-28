@@ -6,8 +6,10 @@ import { VaultWidget } from "./VaultWidget";
 import { DepositWidget } from "./DepositWidget";
 import { WithdrawWidget } from "./WithdrawWidget";
 import { HeirsWidget } from "./HeirsWidget";
+import { GuardiansWidget } from "./GuardiansWidget";
 import { ClaimWidget } from "./ClaimWidget";
 import { BalancesWidget } from "./BalancesWidget";
+import { GasMeterWidget } from "./GasMeterWidget";
 import { UnifiedBalanceWidget } from "./UnifiedBalanceWidget";
 import { PaymentsWidget } from "./PaymentsWidget";
 import { SwapWidget } from "./SwapWidget";
@@ -34,8 +36,8 @@ const SECTIONS: { key: SectionKey; label: string; icon: string }[] = [
 
 // How many widgets each section renders — used to pick a balanced column count.
 const WIDGET_COUNTS: Record<SectionKey, number> = {
-  estate: 6,
-  wallet: 7,
+  estate: 7,
+  wallet: 8,
   earn: 5,
   agents: 2,
 };
@@ -119,6 +121,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
                 <DepositWidget wallet={wallet} estate={estate} refresh={refresh} />
                 <WithdrawWidget wallet={wallet} estate={estate} refresh={refresh} />
                 <HeirsWidget wallet={wallet} estate={estate} refresh={refresh} />
+                <GuardiansWidget wallet={wallet} estate={estate} refresh={refresh} />
                 <ClaimWidget wallet={wallet} />
                 <ActivityWidget wallet={wallet} />
               </>
@@ -135,6 +138,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
           {section === "wallet" && (
             <>
               <BalancesWidget wallet={wallet} />
+              <GasMeterWidget wallet={wallet} />
               <UnifiedBalanceWidget wallet={wallet} />
               <SendWidget wallet={wallet} />
               <PaymentsWidget wallet={wallet} />
