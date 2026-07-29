@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { WalletState } from "../hooks/useWallet";
 import { CONTRACT_ADDRESS, fetchEstate, type EstateView } from "../lib/contract";
 import { getReadProvider } from "../lib/chain";
@@ -34,18 +34,29 @@ const SECTIONS: { key: SectionKey; label: string; icon: string }[] = [
   { key: "agents", label: "Agents", icon: "🤖" },
 ];
 
-// How many widgets each section renders — used to pick a balanced column count.
-const WIDGET_COUNTS: Record<SectionKey, number> = {
-  estate: 7,
-  wallet: 8,
-  earn: 5,
-  agents: 2,
+// Short caption shown under each section's data column heading.
+const SECTION_META: Record<SectionKey, { title: string; blurb: string; aside: string }> = {
+  estate: {
+    title: "Estate overview",
+    blurb: "Vault balance, heirs, guardians and on-chain activity.",
+    aside: "Manage vault",
+  },
+  wallet: {
+    title: "Wallet & balances",
+    blurb: "Unified USDC balances, gas and account analytics.",
+    aside: "Move money",
+  },
+  earn: {
+    title: "DeFi positions",
+    blurb: "Yield, liquidity and treasury analytics on Arc.",
+    aside: "Earn & borrow",
+  },
+  agents: {
+    title: "Agent marketplace",
+    blurb: "Autonomous agents that act on your estate and wallet.",
+    aside: "Run an agent",
+  },
 };
-
-// Balanced columns for n widgets: ~sqrt(n), capped at 3 so cards never get too narrow.
-function columnsFor(count: number): number {
-  return Math.max(1, Math.min(3, Math.ceil(Math.sqrt(count))));
-}
 
 export function Dashboard({ wallet }: { wallet: WalletState }) {
   const { account } = wallet;
@@ -102,69 +113,89 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
           <p className="banner warning">Could not load estate: {loadError}</p>
         )}
 
-        <div
-          className="grid"
-          key={section}
-          style={
-            {
-              "--cols":
-                section === "estate" && !CONTRACT_ADDRESS
-                  ? 1
-                  : columnsFor(WIDGET_COUNTS[section]),
-            } as CSSProperties
-          }
-        >
-          {section === "estate" &&
-            (CONTRACT_ADDRESS ? (
-              <>
-                <VaultWidget wallet={wallet} estate={estate} refresh={refresh} />
-                <DepositWidget wallet={wallet} estate={estate} refresh={refresh} />
-                <WithdrawWidget wallet={wallet} estate={estate} refresh={refresh} />
-                <HeirsWidget wallet={wallet} estate={estate} refresh={refresh} />
-                <GuardiansWidget wallet={wallet} estate={estate} refresh={refresh} />
-                <ClaimWidget wallet={wallet} />
-                <ActivityWidget wallet={wallet} />
-              </>
-            ) : (
-              <section className="card">
-                <h3>Vault</h3>
-                <p className="hint">
-                  The ArcLegacy contract is not deployed yet. Vault features unlock
-                  once it's live on Arc testnet.
-                </p>
-              </section>
-            ))}
+        {section === "estate" && !CONTRACT_ADDRESS ? (
+          <section className="card">
+            <h3>Vault</h3>
+            <p className="hint">
+              The ArcLegacy contract is not deployed yet. Vault features unlock
+              once it's live on Arc testnet.
+            </p>
+          </section>
+        ) : (
+          <div className="dash-split" key={section}>
+            {/* Left / center: data, analytics and portfolio widgets */}
+            <div className="dash-primary">
+              <header className="split-head">
+                <h2>{SECTION_META[section].title}</h2>
+                <p>{SECTION_META[section].blurb}</p>
+              </header>
+              <div className="primary-grid">
+                {section === "estate" && (
+                  <>
+                    <VaultWidget wallet={wallet} estate={estate} refresh={refresh} />
+                    <HeirsWidget wallet={wallet} estate={estate} refresh={refresh} />
+                    <GuardiansWidget wallet={wallet} estate={estate} refresh={refresh} />
+                    <ActivityWidget wallet={wallet} />
+                  </>
+                )}
 
-          {section === "wallet" && (
-            <>
-              <BalancesWidget wallet={wallet} />
-              <GasMeterWidget wallet={wallet} />
-              <UnifiedBalanceWidget wallet={wallet} />
-              <SendWidget wallet={wallet} />
-              <PaymentsWidget wallet={wallet} />
-              <SwapWidget wallet={wallet} />
-              <FxWidget wallet={wallet} />
-              <BridgeWidget wallet={wallet} />
-            </>
-          )}
+                {section === "wallet" && (
+                  <>
+                    <UnifiedBalanceWidget wallet={wallet} />
+                    <BalancesWidget wallet={wallet} />
+                    <GasMeterWidget wallet={wallet} />
+                  </>
+                )}
 
-          {section === "earn" && (
-            <>
-              <YieldWidget wallet={wallet} />
-              <LendingWidget wallet={wallet} />
-              <BorrowWidget wallet={wallet} />
-              <LiquidityWidget wallet={wallet} />
-              <TreasuryWidget wallet={wallet} />
-            </>
-          )}
+                {section === "earn" && (
+                  <>
+                    <TreasuryWidget wallet={wallet} />
+                    <YieldWidget wallet={wallet} />
+                    <LiquidityWidget wallet={wallet} />
+                  </>
+                )}
 
-          {section === "agents" && (
-            <>
-              <AgentWidget wallet={wallet} refresh={refresh} />
-              <AgentMarketplaceWidget wallet={wallet} />
-            </>
-          )}
-        </div>
+                {section === "agents" && (
+                  <AgentMarketplaceWidget wallet={wallet} />
+                )}
+              </div>
+            </div>
+
+            {/* Right: sticky action rail */}
+            <aside className="dash-aside" aria-label={SECTION_META[section].aside}>
+              <p className="aside-label">{SECTION_META[section].aside}</p>
+
+              {section === "estate" && (
+                <>
+                  <DepositWidget wallet={wallet} estate={estate} refresh={refresh} />
+                  <WithdrawWidget wallet={wallet} estate={estate} refresh={refresh} />
+                  <ClaimWidget wallet={wallet} />
+                </>
+              )}
+
+              {section === "wallet" && (
+                <>
+                  <SendWidget wallet={wallet} />
+                  <SwapWidget wallet={wallet} />
+                  <FxWidget wallet={wallet} />
+                  <BridgeWidget wallet={wallet} />
+                  <PaymentsWidget wallet={wallet} />
+                </>
+              )}
+
+              {section === "earn" && (
+                <>
+                  <LendingWidget wallet={wallet} />
+                  <BorrowWidget wallet={wallet} />
+                </>
+              )}
+
+              {section === "agents" && (
+                <AgentWidget wallet={wallet} refresh={refresh} />
+              )}
+            </aside>
+          </div>
+        )}
       </div>
     </div>
   );
