@@ -3,7 +3,7 @@ import type { WalletState } from "../hooks/useWallet";
 import { useTx } from "../hooks/useTx";
 import { TxStatusLine } from "./TxStatusLine";
 import { getContract, type EstateView } from "../lib/contract";
-import { fmtDuration, fmtUsdc } from "../lib/chain";
+import { fmtDuration, fmtUsdc, shortAddress } from "../lib/chain";
 
 function useNow(): bigint {
   const [now, setNow] = useState(() => BigInt(Math.floor(Date.now() / 1000)));
@@ -105,6 +105,32 @@ export function VaultWidget({
               )}%`,
             }}
           />
+        </div>
+      )}
+
+      {estate.beneficiaries.length > 0 && (
+        <div className="chart-block">
+          <div className="chart-head">
+            <span className="chart-title">Heir allocation</span>
+            <span className="chart-sub">
+              {estate.beneficiaries.length}{" "}
+              {estate.beneficiaries.length === 1 ? "heir" : "heirs"}
+            </span>
+          </div>
+          <ul className="alloc-list">
+            {estate.beneficiaries.map((b) => {
+              const share = Number(b.shareBps) / 100;
+              return (
+                <li key={b.account}>
+                  <span className="alloc-name">{shortAddress(b.account)}</span>
+                  <span className="alloc-track">
+                    <span className="alloc-fill" style={{ width: `${share}%` }} />
+                  </span>
+                  <span className="alloc-pct">{share}%</span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
 

@@ -24,6 +24,7 @@ import { BorrowWidget } from "./BorrowWidget";
 import { LiquidityWidget } from "./LiquidityWidget";
 import { AgentWidget } from "./AgentWidget";
 import { AgentMarketplaceWidget } from "./AgentMarketplaceWidget";
+import { MoneyMarketWidget } from "./MoneyMarketWidget";
 
 type SectionKey = "estate" | "wallet" | "earn" | "agents";
 
@@ -38,7 +39,7 @@ const SECTIONS: { key: SectionKey; label: string; icon: string }[] = [
 const SECTION_META: Record<SectionKey, { title: string; blurb: string; aside: string }> = {
   estate: {
     title: "Estate overview",
-    blurb: "Vault balance, heirs, guardians and on-chain activity.",
+    blurb: "Vault balance, heir allocation and on-chain activity.",
     aside: "Manage vault",
   },
   wallet: {
@@ -48,7 +49,7 @@ const SECTION_META: Record<SectionKey, { title: string; blurb: string; aside: st
   },
   earn: {
     title: "DeFi positions",
-    blurb: "Yield, liquidity and treasury analytics on Arc.",
+    blurb: "Live money-market and treasury analytics on Arc.",
     aside: "Earn & borrow",
   },
   agents: {
@@ -133,8 +134,6 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
                 {section === "estate" && (
                   <>
                     <VaultWidget wallet={wallet} estate={estate} refresh={refresh} />
-                    <HeirsWidget wallet={wallet} estate={estate} refresh={refresh} />
-                    <GuardiansWidget wallet={wallet} estate={estate} refresh={refresh} />
                     <ActivityWidget wallet={wallet} />
                   </>
                 )}
@@ -149,9 +148,8 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
 
                 {section === "earn" && (
                   <>
+                    <MoneyMarketWidget wallet={wallet} />
                     <TreasuryWidget wallet={wallet} />
-                    <YieldWidget wallet={wallet} />
-                    <LiquidityWidget wallet={wallet} />
                   </>
                 )}
 
@@ -169,6 +167,8 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
                 <>
                   <DepositWidget wallet={wallet} estate={estate} refresh={refresh} />
                   <WithdrawWidget wallet={wallet} estate={estate} refresh={refresh} />
+                  <HeirsWidget wallet={wallet} estate={estate} refresh={refresh} />
+                  <GuardiansWidget wallet={wallet} estate={estate} refresh={refresh} />
                   <ClaimWidget wallet={wallet} />
                 </>
               )}
@@ -186,7 +186,9 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
               {section === "earn" && (
                 <>
                   <LendingWidget wallet={wallet} />
+                  <YieldWidget wallet={wallet} />
                   <BorrowWidget wallet={wallet} />
+                  <LiquidityWidget wallet={wallet} />
                 </>
               )}
 

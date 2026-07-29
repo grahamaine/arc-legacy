@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
+import { formatEther } from "ethers";
 import type { WalletState } from "../hooks/useWallet";
 import { fetchGasSummary, type GasSummary } from "../lib/arcscan";
 import { fmtUsdc } from "../lib/chain";
+import { Sparkline } from "./Sparkline";
 
 /**
  * Lifetime gas spent — in USDC. On most chains gas is paid in a volatile
@@ -55,13 +57,23 @@ export function GasMeterWidget({ wallet }: { wallet: WalletState }) {
         <div className="stat">
           <span className="stat-label">Lifetime gas</span>
           <span className="stat-value">
-            {summary ? `${fmtUsdc(summary.totalFeeWei)}` : loading ? "…" : "—"}
-            <span className="stat-unit"> USDC</span>
+            {summary ? (
+              <>
+                {fmtUsdc(summary.totalFeeWei)}
+                <span className="stat-unit"> USDC</span>
+              </>
+            ) : loading ? (
+              <span className="skel skel-text" />
+            ) : (
+              "—"
+            )}
           </span>
         </div>
         <div className="stat">
           <span className="stat-label">Transactions</span>
-          <span className="stat-value">{summary ? summary.txCount : "—"}</span>
+          <span className="stat-value">
+            {summary ? summary.txCount : loading ? <span className="skel skel-text" /> : "—"}
+          </span>
         </div>
       </div>
 
@@ -69,24 +81,55 @@ export function GasMeterWidget({ wallet }: { wallet: WalletState }) {
         <div className="stat">
           <span className="stat-label">Avg fee / tx</span>
           <span className="stat-value">
-            {summary ? fmtUsdc(summary.avgFeeWei) : "—"}
-            <span className="stat-unit"> USDC</span>
+            {summary ? (
+              <>
+                {fmtUsdc(summary.avgFeeWei)}
+                <span className="stat-unit"> USDC</span>
+              </>
+            ) : loading ? (
+              <span className="skel skel-text" />
+            ) : (
+              "—"
+            )}
           </span>
         </div>
         <div className="stat">
           <span className="stat-label">Reverted</span>
           <span className="stat-value">
-            {summary ? summary.failedCount : "—"}
+            {summary ? summary.failedCount : loading ? <span className="skel skel-text" /> : "—"}
           </span>
         </div>
       </div>
+
+      {summary && summary.series.length >= 2 && (
+        <div className="chart-block">
+          <div className="chart-head">
+            <span className="chart-title">Cumulative fees</span>
+            <span className="chart-sub">{summary.txCount} txns</span>
+          </div>
+          <Sparkline
+            height={64}
+            ariaLabel={`Cumulative gas fees rising to ${fmtUsdc(
+              summary.totalFeeWei
+            )} USDC over ${summary.txCount} transactions`}
+            data={summary.series.map((p) => ({
+              x: p.ts,
+              y: Number(formatEther(p.cumFeeWei)),
+              label: `${fmtUsdc(p.cumFeeWei)} USDC`,
+            }))}
+            formatValue={(n) =>
+              `${n.toLocaleString(undefined, { maximumFractionDigits: 6 })} USDC`
+            }
+          />
+        </div>
+      )}
 
       {since && (
         <p className="hint" style={{ marginTop: "0.5rem" }}>
           Active on Arc since {since}.
         </p>
       )}
-      {error && <p className="banner warning">Couldn't load gas history: {error}</p>}
+      {error && <p className="hint error">Couldn't load gas history: {error}</p>}
     </section>
   );
 }

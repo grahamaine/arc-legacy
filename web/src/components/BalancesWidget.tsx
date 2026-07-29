@@ -50,18 +50,20 @@ export function BalancesWidget({ wallet }: { wallet: WalletState }) {
         <div className="stat">
           <span className="stat-label">USDC (gas)</span>
           <span className="stat-value">
-            {usdc === null ? "—" : fmtUsdc(usdc)}
+            {usdc === null ? <span className="skel skel-text" /> : fmtUsdc(usdc)}
           </span>
         </div>
         <div className="stat">
           <span className="stat-label">EURC</span>
           <span className="stat-value">
-            {eurc === null
-              ? "—"
-              : Number(eurc).toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 6,
-                })}
+            {eurc === null ? (
+              <span className="skel skel-text" />
+            ) : (
+              Number(eurc).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 6,
+              })
+            )}
           </span>
         </div>
       </div>

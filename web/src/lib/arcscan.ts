@@ -17,6 +17,13 @@ interface RawTx {
   timeStamp: string;
 }
 
+export interface GasPoint {
+  /** Unix seconds of the transaction. */
+  ts: number;
+  /** Cumulative fees paid up to and including this tx, in wei. */
+  cumFeeWei: bigint;
+}
+
 export interface GasSummary {
   /** Total fees paid across all outgoing txs, in wei (USDC, 18 decimals). */
   totalFeeWei: bigint;
@@ -28,6 +35,8 @@ export interface GasSummary {
   avgFeeWei: bigint;
   /** Unix seconds of the earliest outgoing tx, or null when none. */
   firstTs: number | null;
+  /** Cumulative-fee series (oldest → newest) for a spend-over-time chart. */
+  series: GasPoint[];
 }
 
 /**
@@ -59,6 +68,7 @@ export async function fetchGasSummary(address: string): Promise<GasSummary> {
   let txCount = 0;
   let failedCount = 0;
   let firstTs: number | null = null;
+  const series: GasPoint[] = [];
 
   for (const tx of rows) {
     // txlist includes incoming transfers too; only outgoing txs cost us gas.
@@ -68,6 +78,8 @@ export async function fetchGasSummary(address: string): Promise<GasSummary> {
     if (tx.isError === "1") failedCount += 1;
     const ts = Number(tx.timeStamp);
     if (ts && (firstTs === null || ts < firstTs)) firstTs = ts;
+    // rows are sorted asc, so pushing here yields an oldest→newest cumulative line.
+    series.push({ ts: ts || 0, cumFeeWei: totalFeeWei });
   }
 
   return {
@@ -76,5 +88,6 @@ export async function fetchGasSummary(address: string): Promise<GasSummary> {
     failedCount,
     avgFeeWei: txCount > 0 ? totalFeeWei / BigInt(txCount) : 0n,
     firstTs,
+    series,
   };
 }

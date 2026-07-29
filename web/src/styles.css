@@ -1645,3 +1645,193 @@ footer {
     display: none;
   }
 }
+
+/* ---------- Charts & analytics (data column) ---------- */
+
+.chart-block {
+  margin-top: 0.9rem;
+}
+
+.chart-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.chart-sub {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+
+/* Sparkline */
+.spark {
+  position: relative;
+  width: 100%;
+}
+
+.spark svg {
+  display: block;
+  overflow: visible;
+}
+
+.spark-empty {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+
+.spark-tip {
+  position: absolute;
+  top: -0.4rem;
+  transform: translateY(-100%);
+  padding: 0.15rem 0.45rem;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: var(--shadow);
+}
+
+/* Stacked composition bar */
+.stackbar {
+  display: flex;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  gap: 2px; /* 2px surface gap between segments */
+}
+
+.stackbar-seg {
+  height: 100%;
+  min-width: 3px;
+  transition: width 0.4s ease;
+}
+
+.seg-principal {
+  background: var(--accent);
+}
+
+.seg-reserve {
+  background: #4a8cf0;
+}
+
+.chart-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex: none;
+}
+
+/* Heir allocation bars */
+.alloc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.alloc-list li {
+  display: grid;
+  grid-template-columns: 5.2rem 1fr 3rem;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+}
+
+.alloc-name {
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.alloc-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.alloc-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+  transition: width 0.4s ease;
+}
+
+.alloc-pct {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ---------- Loading skeletons ---------- */
+
+.skel {
+  display: inline-block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 25%,
+    rgba(255, 255, 255, 0.16) 37%,
+    var(--surface-2) 63%
+  );
+  background-size: 300% 100%;
+  animation: skelShimmer 1.4s ease-in-out infinite;
+}
+
+.skel-text {
+  width: 4.5rem;
+  height: 1.05rem;
+  vertical-align: -0.15rem;
+}
+
+@keyframes skelShimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -150% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skel {
+    animation: none;
+  }
+}
