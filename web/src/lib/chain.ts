@@ -36,17 +36,23 @@ export function getReadProvider(): JsonRpcProvider {
  * as retryable rather than genuine contract failures.
  */
 export function isTransientRpcError(err: unknown): boolean {
-  const e = err as { code?: string | number; message?: string; error?: { code?: number } };
+  const e = err as { code?: string | number; message?: string; error?: { code?: number }; status?: number };
   const code = e?.code;
   const msg = (e?.message ?? "").toLowerCase();
   return (
-    code === "CALL_EXCEPTION" && msg.includes("missing revert data")
+    (code === "CALL_EXCEPTION" && msg.includes("missing revert data"))
     || code === -32011
     || e?.error?.code === -32011
-    || msg.includes("request limit")
-    || msg.includes("rate limit")
     || code === "TIMEOUT"
     || code === "NETWORK_ERROR"
+    || code === "SERVER_ERROR"
+    || msg.includes("request limit")
+    || msg.includes("rate limit")
+    || msg.includes("too many requests")
+    || msg.includes("failed to fetch") // fetch() network blip
+    // Explorer HTTP errors surfaced as `Explorer API 429/500/502/503/504`.
+    || /\b(429|500|502|503|504)\b/.test(msg)
+    || (typeof e?.status === "number" && (e.status === 429 || e.status >= 500))
   );
 }
 
@@ -71,6 +77,25 @@ export async function readWithRetry<T>(
     }
   }
   throw lastErr;
+}
+
+/**
+ * Coalesce identical concurrent reads and retry transient failures. When
+ * several widgets (or a mount + its 30s poll) ask for the same thing at the
+ * same time, they share one in-flight request instead of each hammering the
+ * rate-limited RPC. There is no time-based cache, so a read fired after a tx
+ * always fetches fresh state — this only dedupes overlapping calls.
+ */
+const inflightReads = new Map<string, Promise<unknown>>();
+
+export function coalescedRead<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const existing = inflightReads.get(key) as Promise<T> | undefined;
+  if (existing) return existing;
+  const p = readWithRetry(fn).finally(() => {
+    inflightReads.delete(key);
+  });
+  inflightReads.set(key, p);
+  return p;
 }
 
 export function explorerTx(hash: string): string {

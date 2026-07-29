@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Contract, formatUnits } from "ethers";
 import type { WalletState } from "../hooks/useWallet";
 import { ARC_EURC_ADDRESS } from "../lib/appkit";
-import { fmtUsdc, getReadProvider } from "../lib/chain";
+import { coalescedRead, fmtUsdc, getReadProvider } from "../lib/chain";
 
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
@@ -19,10 +19,19 @@ export function BalancesWidget({ wallet }: { wallet: WalletState }) {
   const refresh = useCallback(() => {
     if (!account) return;
     const provider = getReadProvider();
-    provider.getBalance(account).then(setUsdc).catch(() => {});
+    coalescedRead(`bal:usdc:${account}`, () => provider.getBalance(account))
+      .then(setUsdc)
+      .catch(() => {});
     const token = new Contract(ARC_EURC_ADDRESS, ERC20_ABI, provider);
-    if (!eurcDecimals) eurcDecimals = token.decimals().then(Number);
-    Promise.all([token.balanceOf(account), eurcDecimals])
+    if (!eurcDecimals) {
+      eurcDecimals = coalescedRead("eurc:decimals", () =>
+        token.decimals().then(Number)
+      );
+    }
+    Promise.all([
+      coalescedRead(`bal:eurc:${account}`, () => token.balanceOf(account)),
+      eurcDecimals,
+    ])
       .then(([bal, dec]) => setEurc(formatUnits(bal, dec)))
       .catch(() => setEurc(null));
   }, [account]);

@@ -1,4 +1,5 @@
 import { Contract, type ContractRunner } from "ethers";
+import { coalescedRead } from "./chain";
 
 export const CONTRACT_ADDRESS: string =
   import.meta.env.VITE_CONTRACT_ADDRESS ?? "";
@@ -65,7 +66,9 @@ export async function fetchEstate(
   runner: ContractRunner,
   owner: string
 ): Promise<EstateView> {
-  const raw = await getContract(runner).getEstate(owner);
+  const raw = await coalescedRead(`estate:${owner}`, () =>
+    getContract(runner).getEstate(owner)
+  );
   return {
     balance: raw.balance,
     lastCheckIn: raw.lastCheckIn,
@@ -87,7 +90,9 @@ export async function fetchGuardians(
   runner: ContractRunner,
   owner: string
 ): Promise<GuardianView> {
-  const raw = await getContract(runner).getGuardians(owner);
+  const raw = await coalescedRead(`guardians:${owner}`, () =>
+    getContract(runner).getGuardians(owner)
+  );
   return {
     guardians: [...raw.guardians],
     threshold: Number(raw.threshold),

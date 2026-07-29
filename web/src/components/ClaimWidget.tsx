@@ -4,7 +4,13 @@ import type { WalletState } from "../hooks/useWallet";
 import { useTx } from "../hooks/useTx";
 import { TxStatusLine } from "./TxStatusLine";
 import { fetchEstate, getContract, type EstateView } from "../lib/contract";
-import { fmtDuration, fmtUsdc, getReadProvider, shortAddress } from "../lib/chain";
+import {
+  coalescedRead,
+  fmtDuration,
+  fmtUsdc,
+  getReadProvider,
+  shortAddress,
+} from "../lib/chain";
 
 interface ClaimState {
   estate: EstateView;
@@ -30,9 +36,13 @@ export function ClaimWidget({ wallet }: { wallet: WalletState }) {
       const contract = getContract(provider);
       const [estate, isClaimable, claimableNow, claimed] = await Promise.all([
         fetchEstate(provider, address),
-        contract.isClaimable(address),
-        contract.claimable(address, account),
-        contract.claimedOf(address, account),
+        coalescedRead(`claimable:${address}`, () => contract.isClaimable(address)),
+        coalescedRead(`claim:${address}:${account}`, () =>
+          contract.claimable(address, account)
+        ),
+        coalescedRead(`claimed:${address}:${account}`, () =>
+          contract.claimedOf(address, account)
+        ),
       ]);
       setOwner(address);
       setData({ estate, isClaimable, claimableNow, claimed });

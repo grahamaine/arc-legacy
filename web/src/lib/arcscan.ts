@@ -5,7 +5,7 @@
 // from the explorer and sum gasUsed * gasPrice to get a real "lifetime gas
 // spent in USDC" figure — a stat that is only meaningful on a stablecoin L1.
 
-import { ARC_TESTNET } from "./chain";
+import { ARC_TESTNET, coalescedRead } from "./chain";
 
 const API_BASE = `${ARC_TESTNET.explorerUrl}/api`;
 
@@ -40,9 +40,17 @@ export async function fetchGasSummary(address: string): Promise<GasSummary> {
   const url =
     `${API_BASE}?module=account&action=txlist&address=${address}` +
     `&page=1&offset=10000&sort=asc`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Explorer API ${res.status}`);
-  const body = (await res.json()) as { result?: RawTx[] | string };
+  // Coalesce + retry: the explorer rate-limits (429) under a burst just like
+  // the RPC. `status` is attached so the transient-error detector can see it.
+  const body = await coalescedRead(`gas:${address}`, async () => {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const err = new Error(`Explorer API ${res.status}`) as Error & { status: number };
+      err.status = res.status;
+      throw err;
+    }
+    return (await res.json()) as { result?: RawTx[] | string };
+  });
 
   const rows = Array.isArray(body.result) ? body.result : [];
   const lower = address.toLowerCase();

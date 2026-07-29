@@ -1,5 +1,5 @@
 import { Contract, type ContractRunner } from "ethers";
-import { readWithRetry } from "./chain";
+import { coalescedRead, readWithRetry } from "./chain";
 
 /** ArcYieldVault contract on Arc testnet — set via VITE_YIELD_VAULT. */
 export const YIELD_VAULT_ADDRESS: string =
@@ -39,7 +39,9 @@ export async function fetchVaultPosition(
   runner: ContractRunner,
   user: string
 ): Promise<VaultPosition> {
-  const raw = await readWithRetry(() => getYieldVault(runner).positionOf(user));
+  const raw = await coalescedRead(`vault:pos:${user}`, () =>
+    getYieldVault(runner).positionOf(user)
+  );
   return { principal: raw.principal, accrued: raw.accrued, lastAccrual: raw.lastAccrual };
 }
 
