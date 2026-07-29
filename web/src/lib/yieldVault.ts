@@ -1,4 +1,5 @@
 import { Contract, type ContractRunner } from "ethers";
+import { readWithRetry } from "./chain";
 
 /** ArcYieldVault contract on Arc testnet — set via VITE_YIELD_VAULT. */
 export const YIELD_VAULT_ADDRESS: string =
@@ -38,16 +39,15 @@ export async function fetchVaultPosition(
   runner: ContractRunner,
   user: string
 ): Promise<VaultPosition> {
-  const raw = await getYieldVault(runner).positionOf(user);
+  const raw = await readWithRetry(() => getYieldVault(runner).positionOf(user));
   return { principal: raw.principal, accrued: raw.accrued, lastAccrual: raw.lastAccrual };
 }
 
 export async function fetchVaultStats(runner: ContractRunner): Promise<VaultStats> {
   const c = getYieldVault(runner);
-  const [rateBps, totalPrincipal, reserve] = await Promise.all([
-    c.rateBps(),
-    c.totalPrincipal(),
-    c.reserve(),
-  ]);
+  // Reads are sequential (not Promise.all) to stay under the RPC's burst limit.
+  const rateBps = await readWithRetry(() => c.rateBps());
+  const totalPrincipal = await readWithRetry(() => c.totalPrincipal());
+  const reserve = await readWithRetry(() => c.reserve());
   return { rateBps: Number(rateBps), totalPrincipal, reserve };
 }

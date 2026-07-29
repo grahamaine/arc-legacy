@@ -28,6 +28,51 @@ export function getReadProvider(): JsonRpcProvider {
   return readProvider;
 }
 
+/**
+ * The Arc public RPC rate-limits hard. Under a burst of reads (a section with
+ * several widgets mounting at once) it returns "request limit reached" or an
+ * empty eth_call result, which ethers surfaces as a CALL_EXCEPTION with
+ * "missing revert data". Those are transient, not real reverts — so treat them
+ * as retryable rather than genuine contract failures.
+ */
+export function isTransientRpcError(err: unknown): boolean {
+  const e = err as { code?: string | number; message?: string; error?: { code?: number } };
+  const code = e?.code;
+  const msg = (e?.message ?? "").toLowerCase();
+  return (
+    code === "CALL_EXCEPTION" && msg.includes("missing revert data")
+    || code === -32011
+    || e?.error?.code === -32011
+    || msg.includes("request limit")
+    || msg.includes("rate limit")
+    || code === "TIMEOUT"
+    || code === "NETWORK_ERROR"
+  );
+}
+
+/**
+ * Run a read, retrying transient RPC failures with a short backoff. Genuine
+ * contract reverts (real "missing revert data" is rare here) throw on the last
+ * attempt so callers can still surface them.
+ */
+export async function readWithRetry<T>(
+  fn: () => Promise<T>,
+  attempts = 3,
+  baseDelayMs = 600
+): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i === attempts - 1 || !isTransientRpcError(err)) throw err;
+      await new Promise((r) => setTimeout(r, baseDelayMs * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
+
 export function explorerTx(hash: string): string {
   return `${ARC_TESTNET.explorerUrl}/tx/${hash}`;
 }

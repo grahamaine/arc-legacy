@@ -3,7 +3,7 @@ import { parseEther } from "ethers";
 import type { WalletState } from "../hooks/useWallet";
 import { useTx } from "../hooks/useTx";
 import { TxStatusLine } from "./TxStatusLine";
-import { fmtUsdc, getReadProvider } from "../lib/chain";
+import { fmtUsdc, getReadProvider, isTransientRpcError } from "../lib/chain";
 import {
   YIELD_VAULT_ADDRESS,
   fetchVaultPosition,
@@ -32,8 +32,16 @@ export function LendingWidget({ wallet }: { wallet: WalletState }) {
     fetchVaultStats(provider).then(setStats).catch(() => {});
     if (account) {
       fetchVaultPosition(provider, account)
-        .then(setPos)
-        .catch((e) => setError((e as Error).message));
+        .then((p) => {
+          setPos(p);
+          setError(null);
+        })
+        .catch((e) => {
+          // Transient RPC hiccups (rate limits) are retried internally; if one
+          // still slips through, keep the last-known position instead of
+          // flashing a scary error.
+          if (!isTransientRpcError(e)) setError((e as Error).message);
+        });
     }
   }, [account]);
 
