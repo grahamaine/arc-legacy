@@ -7,6 +7,7 @@ import {
   getAppKit,
   kitErrorMessage,
 } from "../lib/appkit";
+import { txHashFromResult } from "../lib/txhash";
 import { KitTxLink } from "./KitTxLink";
 
 /** Pull a human-readable amount out of a loosely-typed kit result. */
@@ -66,7 +67,7 @@ export function YieldWidget({ wallet }: { wallet: WalletState }) {
         vaultAddress: ARC_EARN_VAULT,
         amount,
       });
-      setTxHash((res as { txHash?: string })?.txHash ?? null);
+      setTxHash(txHashFromResult(res, "earn-deposit"));
       setMessage(`Deposited ${amount} USDC into the vault ✓`);
       setAmount("");
     });
@@ -79,7 +80,7 @@ export function YieldWidget({ wallet }: { wallet: WalletState }) {
         vaultAddress: ARC_EARN_VAULT,
         amount,
       });
-      setTxHash((res as { txHash?: string })?.txHash ?? null);
+      setTxHash(txHashFromResult(res, "earn-withdraw"));
       setMessage(`Withdrew ${amount} USDC from the vault ✓`);
       setAmount("");
     });

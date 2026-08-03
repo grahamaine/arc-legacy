@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { WalletState } from "../hooks/useWallet";
 import { ARC_CHAIN, getAdapter, getAppKit, kitErrorMessage } from "../lib/appkit";
+import { txHashFromResult } from "../lib/txhash";
 import { KitTxLink } from "./KitTxLink";
 
 type Direction = "USDC->EURC" | "EURC->USDC";
@@ -60,7 +61,7 @@ export function SwapWidget({ wallet }: { wallet: WalletState }) {
         tokenOut,
         amountIn: amount,
       });
-      setTxHash((res as { txHash?: string })?.txHash ?? null);
+      setTxHash(txHashFromResult(res, "swap"));
       setMessage(`Swapped ${amount} ${tokenIn} → ${tokenOut} ✓`);
       setAmount("");
     } catch (err) {

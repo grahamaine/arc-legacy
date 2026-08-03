@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { WalletState } from "../hooks/useWallet";
 import { ARC_CHAIN, getAdapter, getAppKit, kitErrorMessage } from "../lib/appkit";
+import { txHashFromResult } from "../lib/txhash";
 import { KitTxLink } from "./KitTxLink";
 
 type Direction = "USDC->EURC" | "EURC->USDC";
@@ -101,7 +102,7 @@ export function FxWidget({ wallet }: { wallet: WalletState }) {
         tokenOut: locked.tokenOut,
         amountIn: locked.amountIn,
       });
-      setTxHash((res as { txHash?: string })?.txHash ?? null);
+      setTxHash(txHashFromResult(res, "stablefx"));
       setMessage(
         `Settled ${locked.amountIn} ${locked.tokenIn} → ${locked.amountOut} ${locked.tokenOut} at ${locked.rate} ✓`
       );

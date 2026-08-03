@@ -7,6 +7,7 @@ import {
   getAppKit,
   kitErrorMessage,
 } from "../lib/appkit";
+import { txHashFromResult } from "../lib/txhash";
 import { KitTxLink } from "./KitTxLink";
 
 type SourceId = (typeof BRIDGE_SOURCES)[number]["id"];
@@ -34,7 +35,7 @@ export function BridgeWidget({ wallet }: { wallet: WalletState }) {
         to: { adapter, chain: ARC_CHAIN },
         amount,
       });
-      setTxHash((res as { txHash?: string })?.txHash ?? null);
+      setTxHash(txHashFromResult(res, "bridge"));
       setMessage(`Bridged ${amount} USDC from ${source.replace(/_/g, " ")} to Arc ✓`);
       setAmount("");
     } catch (err) {
