@@ -15,12 +15,24 @@ export const ARC_TESTNET = {
   nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
 } as const;
 
+// Browser reads go through a SAME-ORIGIN proxy (/api/rpc), not the public RPC
+// directly: the Arc RPC (behind Cloudflare) returns no CORS headers, so a
+// cross-origin browser POST is blocked and surfaces as "Failed to fetch". The
+// proxy forwards server-side (no CORS). Node code (the keeper) hits the RPC
+// directly. Override with VITE_RPC_PROXY if you run your own endpoint.
+export function readRpcUrl(): string {
+  const override = import.meta.env.VITE_RPC_PROXY as string | undefined;
+  if (override) return override;
+  if (typeof window !== "undefined") return `${window.location.origin}/api/rpc`;
+  return ARC_TESTNET.rpcUrl;
+}
+
 // The public Arc RPC rate-limits aggressively, so all reads go through one
 // shared provider with small request batches; the wallet is only used to sign.
 let readProvider: JsonRpcProvider | null = null;
 export function getReadProvider(): JsonRpcProvider {
   if (!readProvider) {
-    readProvider = new JsonRpcProvider(ARC_TESTNET.rpcUrl, ARC_TESTNET.chainId, {
+    readProvider = new JsonRpcProvider(readRpcUrl(), ARC_TESTNET.chainId, {
       staticNetwork: true,
       batchMaxCount: 5,
     });

@@ -5,6 +5,19 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 export default defineConfig({
   // App Kit's deps (@solana/web3.js) expect Node globals like Buffer
   plugins: [react(), nodePolyfills({ globals: { Buffer: true, global: true } })],
+  // Mirror the production /api/rpc proxy in dev: forward same-origin JSON-RPC
+  // calls to the Arc RPC so the browser never hits it cross-origin (it sends no
+  // CORS headers). Matches web/api/rpc.js in prod.
+  server: {
+    proxy: {
+      "/api/rpc": {
+        target: "https://rpc.testnet.arc.network",
+        changeOrigin: true,
+        secure: true,
+        rewrite: () => "/",
+      },
+    },
+  },
   build: {
     // Only split the libraries that load on first paint (react, ethers) into
     // stable, independently-cacheable chunks. Everything else — notably the
