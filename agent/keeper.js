@@ -55,6 +55,13 @@ const YIELD_VAULT_ADDRESS =
 const INTERVAL_MS = num(process.env.KEEPER_INTERVAL_SECONDS, 60) * 1000;
 const YIELD_FLOOR = parseEther(str(process.env.KEEPER_YIELD_FLOOR, "0.5")); // gas buffer kept in wallet
 const MIN_SWEEP = parseEther(str(process.env.KEEPER_MIN_SWEEP, "0.1")); // don't sweep dust
+// Optional hard cap on a single sweep. Unset = sweep everything above the floor.
+// Setting it (e.g. 1) makes each run supply a fixed, repeatable amount — handy
+// for re-recording a demo without draining the wallet in one shot.
+const SWEEP_AMOUNT =
+  process.env.KEEPER_SWEEP_AMOUNT && Number(process.env.KEEPER_SWEEP_AMOUNT) > 0
+    ? parseEther(String(process.env.KEEPER_SWEEP_AMOUNT))
+    : null;
 const MIN_CLAIM = parseEther(str(process.env.KEEPER_MIN_CLAIM, "0.0005")); // don't claim dust
 const CHECKIN_LEAD = num(process.env.KEEPER_CHECKIN_LEAD_SECONDS, 3600); // check in with <lead left
 const FORCE_CHECKIN = truthy(process.env.KEEPER_FORCE_CHECKIN);
@@ -184,17 +191,22 @@ async function maybeCheckIn(legacy, agent, provider) {
  */
 async function maybeSweep(vault, agent, provider) {
   const balance = await read(() => provider.getBalance(agent));
-  const sweepable = balance - YIELD_FLOOR;
+  const headroom = balance - YIELD_FLOOR;
+  // Sweep everything above the floor, unless a fixed cap is configured.
+  let amount = headroom;
+  if (SWEEP_AMOUNT != null && amount > SWEEP_AMOUNT) amount = SWEEP_AMOUNT;
   log(
     `yield sweep: wallet ${usdc(balance)}, floor ${usdc(YIELD_FLOOR)}, ` +
-      `sweepable ${usdc(sweepable > 0n ? sweepable : 0n)}.`
+      `sweeping ${usdc(amount > 0n ? amount : 0n)}` +
+      (SWEEP_AMOUNT != null ? ` (capped at ${usdc(SWEEP_AMOUNT)})` : "") +
+      "."
   );
-  if (sweepable < MIN_SWEEP) {
+  if (amount < MIN_SWEEP) {
     log("  → below min sweep, leaving it as gas buffer.");
     return;
   }
-  await send(`supply ${usdc(sweepable)} to yield vault`, async () =>
-    vault.supply({ value: sweepable })
+  await send(`supply ${usdc(amount)} to yield vault`, async () =>
+    vault.supply({ value: amount })
   );
 }
 

@@ -44,9 +44,17 @@ node agent/keeper.js --once
 node agent/keeper.js
 ```
 
-For a lively demo, set a short check-in interval on the agent's estate in the
-web app and run with `KEEPER_FORCE_CHECKIN=1 node agent/keeper.js` so it lands a
-proof-of-life transaction every cycle.
+For a lively demo, run with `KEEPER_FORCE_CHECKIN=1` so it lands a proof-of-life
+transaction every cycle, and set `KEEPER_SWEEP_AMOUNT=1` (with a low
+`KEEPER_YIELD_FLOOR`) so each run supplies a fixed 1 USDC — repeatable across
+retakes instead of draining the wallet in one shot.
+
+You can launch it from any directory with an absolute path (the keeper resolves
+`.env` from the repo root regardless of the current folder):
+
+```bash
+node "C:/Users/Lenovo/Desktop/Arc Legacy/agent/keeper.js" --once
+```
 
 ## Design note
 
