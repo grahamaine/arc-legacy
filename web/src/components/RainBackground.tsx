@@ -58,7 +58,7 @@ export function RainBackground() {
         len: rand(14, 34),
         speed: rand(750, 1500), // px per second
         thickness: rand(0.6, 1.6),
-        alpha: rand(0.15, 0.5),
+        alpha: rand(0.2, 0.58),
       };
     }
 
