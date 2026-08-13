@@ -40,9 +40,16 @@ const { JsonRpcProvider, Wallet, Contract, formatEther, parseEther } = require("
 
 // ----------------------------------------------------------------- config
 
+// Network is parameterized so the same keeper drives testnet or mainnet. Arc
+// mainnet (public Sep 16 2026) publishes its RPC/chainId near launch — set
+// ARC_RPC_URL, KEEPER_CHAIN_ID and KEEPER_EXPLORER in .env to point at it.
 const RPC_URL = process.env.ARC_RPC_URL || "https://rpc.testnet.arc.network";
-const CHAIN_ID = 5042002;
-const EXPLORER = "https://testnet.arcscan.app";
+const CHAIN_ID = num(process.env.KEEPER_CHAIN_ID, 5042002);
+const EXPLORER = str(process.env.KEEPER_EXPLORER, "https://testnet.arcscan.app");
+// Exit the loop after this many consecutive fully-failed cycles (every action
+// errored) so a supervisor can restart cleanly instead of spinning forever.
+// 0 disables the circuit-breaker (loop indefinitely).
+const MAX_FAILED_CYCLES = num(process.env.KEEPER_MAX_FAILED_CYCLES, 10);
 
 // Deployed Arc-testnet addresses (overridable via env).
 const ARC_LEGACY_ADDRESS =
@@ -235,23 +242,33 @@ async function maybeClaim(vault, agent) {
 
 // -------------------------------------------------------------- main loop
 
+/**
+ * Run one cycle. Each action is isolated so one failure never blocks the others.
+ * Returns the number of actions that failed this cycle, so the loop can detect a
+ * fully-broken keeper (e.g. RPC down, wallet unfunded) and back off / exit.
+ */
 async function cycle(ctx) {
   log("── keeper cycle ──────────────────────────────");
+  let failures = 0;
   try {
     await maybeCheckIn(ctx.legacy, ctx.agent, ctx.provider);
   } catch (e) {
+    failures++;
     log("  ! proof-of-life failed:", e.shortMessage || e.message);
   }
   try {
     await maybeSweep(ctx.vault, ctx.agent, ctx.provider);
   } catch (e) {
+    failures++;
     log("  ! yield sweep failed:", e.shortMessage || e.message);
   }
   try {
     await maybeClaim(ctx.vault, ctx.agent);
   } catch (e) {
+    failures++;
     log("  ! interest claim failed:", e.shortMessage || e.message);
   }
+  return failures;
 }
 
 async function main() {
@@ -294,6 +311,8 @@ async function main() {
   log(`  mode:       ${DRY_RUN ? "DRY-RUN (no txs)" : ONCE ? "single cycle" : "loop"}`);
   log(`  agent:      ${agent}`);
   log(`  rpc:        ${RPC_URL}`);
+  log(`  chainId:    ${CHAIN_ID}`);
+  log(`  explorer:   ${EXPLORER}`);
   log(`  estate:     ${ARC_LEGACY_ADDRESS}`);
   log(`  yieldVault: ${YIELD_VAULT_ADDRESS}`);
   if (!DRY_RUN) {
@@ -307,14 +326,50 @@ async function main() {
     return;
   }
 
-  // Loop until the process is killed. Errors inside a cycle are already caught,
-  // so the keeper keeps running across transient RPC failures.
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    await cycle(ctx);
+  // Loop until stopped. Errors inside a cycle are already caught, so the keeper
+  // rides out transient RPC failures. Two production safeguards:
+  //  1. Graceful shutdown: on SIGINT/SIGTERM we finish sleeping and exit cleanly
+  //     between cycles (never mid-transaction), so a supervisor can stop it.
+  //  2. Circuit-breaker: if MAX_FAILED_CYCLES cycles in a row fail every action
+  //     (RPC down, wallet drained), exit non-zero so a supervisor restarts us
+  //     rather than spinning silently forever.
+  let stopping = false;
+  const onSignal = (sig) => {
+    if (stopping) return;
+    stopping = true;
+    log(`received ${sig} — shutting down after this interval…`);
+  };
+  process.once("SIGINT", () => onSignal("SIGINT"));
+  process.once("SIGTERM", () => onSignal("SIGTERM"));
+
+  let consecutiveFailedCycles = 0;
+  while (!stopping) {
+    const failures = await cycle(ctx);
+    if (failures >= 3) {
+      consecutiveFailedCycles++;
+      log(
+        `cycle fully failed (${consecutiveFailedCycles}` +
+          (MAX_FAILED_CYCLES ? `/${MAX_FAILED_CYCLES}` : "") +
+          " in a row)."
+      );
+      if (MAX_FAILED_CYCLES && consecutiveFailedCycles >= MAX_FAILED_CYCLES) {
+        throw new Error(
+          `${consecutiveFailedCycles} consecutive fully-failed cycles — ` +
+            "aborting so the supervisor can restart the keeper."
+        );
+      }
+    } else {
+      consecutiveFailedCycles = 0;
+    }
+    if (stopping) break;
     log(`sleeping ${INTERVAL_MS / 1000}s…\n`);
-    await sleep(INTERVAL_MS);
+    // Sleep in short slices so a shutdown signal is honoured promptly.
+    const until = Date.now() + INTERVAL_MS;
+    while (Date.now() < until && !stopping) {
+      await sleep(Math.min(1000, until - Date.now()));
+    }
   }
+  log("keeper stopped cleanly.");
 }
 
 main().catch((err) => {

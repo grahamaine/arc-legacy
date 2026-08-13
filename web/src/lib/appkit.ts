@@ -1,23 +1,26 @@
 import type { AppKit } from "@circle-fin/app-kit";
 import type { ViemAdapter } from "@circle-fin/adapter-viem-v2";
+import {
+  APPKIT_CHAIN,
+  BRIDGE_SOURCES as NETWORK_BRIDGE_SOURCES,
+  EARN_VAULT,
+  EURC_ADDRESS,
+} from "./network";
 
-/** Chain identifier strings understood by App Kit. */
-export const ARC_CHAIN = "Arc_Testnet" as const;
+// Network-aware Circle App Kit identifiers. These now switch with VITE_NETWORK
+// (see network.ts); the names are kept for backward compatibility.
 
-/** Testnets users can bridge USDC from into Arc. */
-export const BRIDGE_SOURCES = [
-  { id: "Ethereum_Sepolia", label: "Ethereum Sepolia" },
-  { id: "Base_Sepolia", label: "Base Sepolia" },
-  { id: "Arbitrum_Sepolia", label: "Arbitrum Sepolia" },
-  { id: "Optimism_Sepolia", label: "OP Sepolia" },
-  { id: "Avalanche_Fuji", label: "Avalanche Fuji" },
-] as const;
+/** Chain identifier string understood by App Kit (Arc_Testnet or Arc). */
+export const ARC_CHAIN = APPKIT_CHAIN;
 
-/** EURC token on Arc testnet (USDC is the native gas token). */
-export const ARC_EURC_ADDRESS = "0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a";
+/** Chains users can bridge USDC from into Arc (via CCTP). */
+export const BRIDGE_SOURCES = NETWORK_BRIDGE_SOURCES;
 
-/** Circle Earn demo lending vault on Arc testnet (from App Kit docs). */
-export const ARC_EARN_VAULT = "0xAabbeF1D3971c710276ed41eC791BbE14CdB8E88";
+/** EURC token address on the active Arc network (USDC is the native gas token). */
+export const ARC_EURC_ADDRESS = EURC_ADDRESS;
+
+/** Circle Earn lending vault on the active Arc network. */
+export const ARC_EARN_VAULT = EARN_VAULT;
 
 // The kit and its deps are heavy, so they are imported lazily the first time
 // a swap/bridge widget actually needs them.

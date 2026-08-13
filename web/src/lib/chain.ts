@@ -1,19 +1,17 @@
 import { formatEther, JsonRpcProvider } from "ethers";
+import { NETWORK } from "./network";
 
 // Arc Legacy treasury wallet — the app's default destination for payments and
 // the default refund address. Editable per-payment in the Payments widget.
-// This is the active operator wallet (MetaMask "Aine Testnet Wallet").
-export const ARC_LEGACY_TREASURY = "0x3EEE5c7f94Ba069433b4459a4574764b4ac7B7d6";
+// Testnet default is the operator wallet; override for mainnet via env.
+export const ARC_LEGACY_TREASURY =
+  (import.meta.env.VITE_TREASURY_ADDRESS as string | undefined) ||
+  "0x3EEE5c7f94Ba069433b4459a4574764b4ac7B7d6";
 
-export const ARC_TESTNET = {
-  chainId: 5042002,
-  chainIdHex: "0x4cef52",
-  name: "Arc Testnet",
-  rpcUrl: "https://rpc.testnet.arc.network",
-  explorerUrl: "https://testnet.arcscan.app",
-  // On Arc the native gas token is USDC (18 decimals at the EVM level).
-  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
-} as const;
+// The active Arc network (testnet by default, mainnet when VITE_NETWORK=mainnet;
+// see network.ts). Exported under the legacy name `ARC_TESTNET` so existing
+// consumers keep working — it now reflects whichever network is selected.
+export const ARC_TESTNET = NETWORK;
 
 // Browser reads go through a SAME-ORIGIN proxy (/api/rpc), not the public RPC
 // directly: the Arc RPC (behind Cloudflare) returns no CORS headers, so a
