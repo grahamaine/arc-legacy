@@ -1,6 +1,14 @@
 const { ethers, network } = require("hardhat");
 
 async function main() {
+  // Guard FIRST — arcMainnet is inert until Circle publishes RPC/chainId.
+  if (network.name === "arcMainnet" && !network.config.url) {
+    throw new Error(
+      "arcMainnet is not configured. Set ARC_MAINNET_RPC_URL and " +
+        "ARC_MAINNET_CHAIN_ID in .env once Circle publishes them (Sep 16 2026)."
+    );
+  }
+
   const [deployer] = await ethers.getSigners();
   if (!deployer) {
     throw new Error(
@@ -26,6 +34,8 @@ async function main() {
   console.log(`\nPaymentRouter deployed to: ${address}`);
   if (network.name === "arcTestnet") {
     console.log(`Explorer: https://testnet.arcscan.app/address/${address}`);
+  } else if (network.name === "arcMainnet") {
+    console.log(`\n⚠ MAINNET deploy. Update web/.env + Vercel: VITE_PAYMENT_ROUTER=${address}`);
   }
 }
 

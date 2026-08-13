@@ -5,6 +5,14 @@ const RATE_BPS = 500;
 const RESERVE_USDC = "2";
 
 async function main() {
+  // Guard FIRST — arcMainnet is inert until Circle publishes RPC/chainId.
+  if (network.name === "arcMainnet" && !network.config.url) {
+    throw new Error(
+      "arcMainnet is not configured. Set ARC_MAINNET_RPC_URL and " +
+        "ARC_MAINNET_CHAIN_ID in .env once Circle publishes them (Sep 16 2026)."
+    );
+  }
+
   const [deployer] = await ethers.getSigners();
   if (!deployer) throw new Error("No deployer. Set PRIVATE_KEY in .env.");
 
@@ -28,6 +36,9 @@ async function main() {
   if (network.name === "arcTestnet") {
     console.log(`Explorer: https://testnet.arcscan.app/address/${address}`);
     console.log(`\nUpdate web/.env and Vercel: VITE_YIELD_VAULT=${address}`);
+  } else if (network.name === "arcMainnet") {
+    console.log(`\n⚠ MAINNET deploy. Reserve seeded with REAL USDC.`);
+    console.log(`Update web/.env + Vercel: VITE_YIELD_VAULT=${address}`);
   }
 }
 
