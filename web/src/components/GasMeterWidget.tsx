@@ -130,6 +130,11 @@ export function GasMeterWidget({ wallet }: { wallet: WalletState }) {
         </p>
       )}
       {error && <p className="hint error">Couldn't load gas history: {error}</p>}
+      <p className="widget-note">
+        <strong>Gas in dollars</strong> — because Arc pays gas in USDC, your
+        lifetime fees are a real dollar figure, read from on-chain history with a
+        cumulative trend line.
+      </p>
     </section>
   );
 }

@@ -67,6 +67,10 @@ export function BalancesWidget({ wallet }: { wallet: WalletState }) {
           </span>
         </div>
       </div>
+      <p className="widget-note">
+        <strong>Wallet balances</strong> — your native USDC (the gas token) and
+        EURC on Arc, auto-refreshed every 30 seconds.
+      </p>
     </section>
   );
 }

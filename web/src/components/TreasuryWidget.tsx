@@ -85,6 +85,10 @@ export function TreasuryWidget({ wallet }: { wallet: WalletState }) {
         {busy ? "Loading…" : rows === null ? "Load balances" : "Refresh"}
       </button>
       {error && <p className="hint error">{error}</p>}
+      <p className="widget-note">
+        <strong>Treasury</strong> — your USDC across every chain as one treasury
+        balance, aggregated by Circle Gateway's unified balance.
+      </p>
     </section>
   );
 }

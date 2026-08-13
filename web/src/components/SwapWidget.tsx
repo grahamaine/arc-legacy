@@ -113,6 +113,10 @@ export function SwapWidget({ wallet }: { wallet: WalletState }) {
         </p>
       )}
       {error && <p className="hint error">{error}</p>}
+      <p className="widget-note">
+        <strong>Swap</strong> — instant same-chain USDC⇄EURC via Circle App Kit,
+        with a live quote before you commit and a real Arcscan tx hash after.
+      </p>
     </section>
   );
 }

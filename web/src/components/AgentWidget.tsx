@@ -163,6 +163,12 @@ export function AgentWidget({
           ))}
         </ul>
       )}
+      <p className="widget-note">
+        <strong>Legacy Agent</strong> — your autonomous operator. Guardian
+        check-in runs a real on-chain transaction; the other automations are a
+        scheduling preview. The headless keeper (agent/keeper.js) runs the same
+        logic 24/7 with no human in the loop.
+      </p>
     </section>
   );
 }

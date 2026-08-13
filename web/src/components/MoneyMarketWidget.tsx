@@ -107,6 +107,11 @@ export function MoneyMarketWidget(_props: { wallet: WalletState }) {
       ) : stats ? (
         <p className="hint">No deposits in the market yet — be the first to supply.</p>
       ) : null}
+      <p className="widget-note">
+        <strong>Money market</strong> — live, read-only analytics for the
+        on-chain ArcYieldVault: supply APY, market size, and how the pool splits
+        between supplier principal and the interest reserve backing it.
+      </p>
     </section>
   );
 }

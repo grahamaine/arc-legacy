@@ -162,6 +162,11 @@ export function ClaimWidget({ wallet }: { wallet: WalletState }) {
         </>
       )}
       <TxStatusLine status={tx.status} />
+      <p className="widget-note">
+        <strong>Heir claims</strong> — look up an estate and, once it has
+        unlocked, claim your inherited share (respecting any vesting schedule)
+        directly in USDC — no custodian, no probate.
+      </p>
     </section>
   );
 }

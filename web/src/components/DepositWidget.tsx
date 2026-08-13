@@ -50,6 +50,11 @@ export function DepositWidget({
       </div>
       {!locked && <p className="hint">Estate is unlocked — deposits disabled.</p>}
       <TxStatusLine status={tx.status} />
+      <p className="widget-note">
+        <strong>Fund your estate</strong> — add native USDC to the vault. Every
+        deposit also counts as a proof-of-life check-in, resetting your
+        dead-man's-switch.
+      </p>
     </section>
   );
 }

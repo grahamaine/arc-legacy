@@ -76,6 +76,10 @@ export function SendWidget({ wallet }: { wallet: WalletState }) {
         {Number(amount) ? ` ${amount} USDC` : ""}.
       </p>
       <TxStatusLine status={tx.status} />
+      <p className="widget-note">
+        <strong>Send USDC</strong> — pay anyone on Arc with sub-second finality,
+        or share a prefilled payment-request link so they pay you.
+      </p>
     </section>
   );
 }

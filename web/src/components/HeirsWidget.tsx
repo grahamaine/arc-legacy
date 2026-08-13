@@ -64,6 +64,11 @@ export function HeirsWidget({
         </p>
       )}
       <TxStatusLine status={tx.status} />
+      <p className="widget-note">
+        <strong>Name your heirs</strong> — give each a share in basis points
+        (must total 100%), then share a one-click claim link. Payouts can be a
+        lump sum or linearly vested.
+      </p>
     </section>
   );
 }

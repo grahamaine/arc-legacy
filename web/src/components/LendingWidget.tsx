@@ -160,6 +160,11 @@ export function LendingWidget({ wallet }: { wallet: WalletState }) {
       )}
       {error && <p className="hint error">{error}</p>}
       <TxStatusLine status={tx.status} />
+      <p className="widget-note">
+        <strong>Lending</strong> — supply USDC to the on-chain ArcYieldVault and
+        earn interest. Real vault: positions persist on-chain and principal is
+        always fully backed by a separately-funded reserve.
+      </p>
     </section>
   );
 }

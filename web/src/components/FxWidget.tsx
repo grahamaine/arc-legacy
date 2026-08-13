@@ -190,6 +190,10 @@ export function FxWidget({ wallet }: { wallet: WalletState }) {
         </p>
       )}
       {error && <p className="hint error">{error}</p>}
+      <p className="widget-note">
+        <strong>StableFX</strong> — quote a USDC⇄EURC rate, lock it briefly, then
+        settle in a second step (App Kit): a two-step FX flow, not a spot swap.
+      </p>
     </section>
   );
 }

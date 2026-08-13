@@ -69,6 +69,11 @@ export function LiquidityWidget({ wallet }: { wallet: WalletState }) {
           Remove
         </button>
       </div>
+      <p className="widget-note">
+        <strong>Liquidity</strong> — provide to the USDC/EURC pool and earn swap
+        fees, with live share and yield math. Preview: pool depth is simulated
+        until an AMM is live on Arc.
+      </p>
     </section>
   );
 }

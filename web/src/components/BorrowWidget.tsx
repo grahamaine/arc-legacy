@@ -86,6 +86,11 @@ export function BorrowWidget({ wallet }: { wallet: WalletState }) {
       {num > available && borrowed + num > collateral * MAX_LTV && (
         <p className="hint error">Exceeds your borrow limit at {MAX_LTV * 100}% LTV.</p>
       )}
+      <p className="widget-note">
+        <strong>Borrow</strong> — post USDC collateral and borrow against it with
+        live LTV and health-factor mechanics. Preview: balances are simulated
+        until a lending market is live on Arc.
+      </p>
     </section>
   );
 }

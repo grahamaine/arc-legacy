@@ -128,6 +128,11 @@ export function YieldWidget({ wallet }: { wallet: WalletState }) {
         </p>
       )}
       {error && <p className="hint error">{error}</p>}
+      <p className="widget-note">
+        <strong>Yield</strong> — deposit USDC into a Circle Earn vault for
+        auto-compounding yield (Earn Kit, testnet preview): deposit, check your
+        position, withdraw.
+      </p>
     </section>
   );
 }

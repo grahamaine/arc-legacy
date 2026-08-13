@@ -176,6 +176,11 @@ export function GuardiansWidget({
       </div>
       <TxStatusLine status={attestTx.status} />
       <TxStatusLine status={tx.status} />
+      <p className="widget-note">
+        <strong>M-of-N guardians</strong> — trusted addresses who can jointly
+        unlock your estate early (social recovery). Any proof-of-life you make
+        voids pending attestations, so a false alarm costs nothing.
+      </p>
     </section>
   );
 }

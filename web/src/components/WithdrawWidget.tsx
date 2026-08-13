@@ -48,6 +48,10 @@ export function WithdrawWidget({
       </div>
       {!locked && <p className="hint">Estate is unlocked — withdrawals disabled.</p>}
       <TxStatusLine status={tx.status} />
+      <p className="widget-note">
+        <strong>Withdraw</strong> — pull USDC back out any time while the estate
+        is still locked; withdrawals also reset your check-in timer.
+      </p>
     </section>
   );
 }

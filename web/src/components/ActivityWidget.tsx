@@ -129,6 +129,11 @@ export function ActivityWidget({ wallet }: { wallet: WalletState }) {
           ))}
         </ul>
       )}
+      <p className="widget-note">
+        <strong>On-chain activity</strong> — your estate's full history
+        (deposits, check-ins, heir changes, claims) read from Arc's indexed
+        logs, each row linking to its Arcscan transaction.
+      </p>
     </section>
   );
 }

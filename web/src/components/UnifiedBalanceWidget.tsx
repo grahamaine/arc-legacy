@@ -66,6 +66,10 @@ export function UnifiedBalanceWidget({ wallet }: { wallet: WalletState }) {
         {busy ? "Aggregating…" : "Refresh unified balance"}
       </button>
       {error && <p className="hint error">{error}</p>}
+      <p className="widget-note">
+        <strong>Unified balance</strong> — your total USDC across chains as a
+        single figure, aggregated by Circle Gateway (a testnet preview).
+      </p>
     </section>
   );
 }

@@ -216,6 +216,11 @@ export function PaymentsWidget({ wallet }: { wallet: WalletState }) {
           </p>
         </>
       )}
+      <p className="widget-note">
+        <strong>Programmable payments</strong> — via the PaymentRouter contract:
+        atomic merchant + fee splits and conditional escrow (release or refund),
+        plus a shareable checkout link.
+      </p>
     </section>
   );
 }

@@ -133,6 +133,11 @@ export function AgentMarketplaceWidget({ wallet }: { wallet: WalletState }) {
           <li className="hint">No agents match “{query}”.</li>
         )}
       </ul>
+      <p className="widget-note">
+        <strong>Agent marketplace</strong> — a directory of USDC-native agents
+        you can hire to act on your estate. Directory preview: connecting is a
+        local demo, not a live subscription.
+      </p>
     </section>
   );
 }

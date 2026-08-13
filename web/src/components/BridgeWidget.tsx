@@ -90,6 +90,11 @@ export function BridgeWidget({ wallet }: { wallet: WalletState }) {
         </p>
       )}
       {error && <p className="hint error">{error}</p>}
+      <p className="widget-note">
+        <strong>CCTP bridge</strong> — move USDC into Arc from other chains over
+        Circle's Cross-Chain Transfer Protocol (App Kit): burn on the source
+        chain, mint natively on Arc.
+      </p>
     </section>
   );
 }
