@@ -58,6 +58,12 @@ const ARC_LEGACY_ADDRESS =
 const YIELD_VAULT_ADDRESS =
   process.env.YIELD_VAULT_ADDRESS ||
   "0xb5b5CE9C1bD85A68B4fE2F0274d419bE1a3f8761"; // ArcYieldVault
+// LegacyStreams (recurring payments). No default — the keeper only runs the
+// schedules action when STREAMS_ADDRESS is set, so existing deployments are
+// unaffected until the contract is deployed and configured.
+const STREAMS_ADDRESS = process.env.STREAMS_ADDRESS || "";
+// Cap payouts settled per cycle so one busy cycle can't run unbounded.
+const MAX_PAYOUTS_PER_CYCLE = num(process.env.KEEPER_MAX_PAYOUTS_PER_CYCLE, 25);
 
 const INTERVAL_MS = num(process.env.KEEPER_INTERVAL_SECONDS, 60) * 1000;
 const YIELD_FLOOR = parseEther(str(process.env.KEEPER_YIELD_FLOOR, "0.5")); // gas buffer kept in wallet
@@ -86,6 +92,12 @@ const VAULT_ABI = [
   "function claimInterest()",
   "function reserve() view returns (uint256)",
   "function positionOf(address user) view returns (uint256 principal, uint256 accrued, uint64 lastAccrual)",
+];
+const STREAMS_ABI = [
+  "function streamCount() view returns (uint256)",
+  "function isDue(uint256 id) view returns (bool)",
+  "function getStream(uint256 id) view returns (address creator, address recipient, uint128 amount, uint64 interval, uint64 nextDue, uint64 endTime, uint128 balance, bool active)",
+  "function executeDue(uint256 id) returns (bool)",
 ];
 
 // ------------------------------------------------------------- utilities
@@ -243,32 +255,68 @@ async function maybeClaim(vault, agent) {
 // -------------------------------------------------------------- main loop
 
 /**
+ * Scheduled payments. Settles any due recurring payouts in the LegacyStreams
+ * contract — the agent (or anyone) can call executeDue, so the estate's
+ * recurring contributions and heir annuities keep flowing with no human. Only
+ * runs when STREAMS_ADDRESS is configured.
+ */
+async function maybeRunSchedules(streams) {
+  const count = Number(await read(() => streams.streamCount()));
+  if (count === 0) {
+    log("scheduled payments: no streams created yet.");
+    return;
+  }
+  let due = 0;
+  let settled = 0;
+  for (let id = 1; id <= count; id++) {
+    let isDue;
+    try {
+      isDue = await read(() => streams.isDue(id));
+    } catch {
+      continue; // skip a stream whose read blips; next cycle retries
+    }
+    if (!isDue) continue;
+    due++;
+    const s = await read(() => streams.getStream(id));
+    await send(
+      `pay stream #${id} — ${usdc(s.amount)} to ${s.recipient}`,
+      async () => streams.executeDue(id)
+    );
+    settled++;
+    if (settled >= MAX_PAYOUTS_PER_CYCLE) {
+      log(`  → hit per-cycle payout cap (${MAX_PAYOUTS_PER_CYCLE}); rest next cycle.`);
+      break;
+    }
+  }
+  log(`scheduled payments: ${count} stream(s), ${due} due, ${settled} settled.`);
+}
+
+/**
  * Run one cycle. Each action is isolated so one failure never blocks the others.
- * Returns the number of actions that failed this cycle, so the loop can detect a
- * fully-broken keeper (e.g. RPC down, wallet unfunded) and back off / exit.
+ * Returns { failures, total } so the loop can detect a fully-broken keeper
+ * (e.g. RPC down, wallet unfunded) and back off / exit.
  */
 async function cycle(ctx) {
   log("── keeper cycle ──────────────────────────────");
   let failures = 0;
-  try {
-    await maybeCheckIn(ctx.legacy, ctx.agent, ctx.provider);
-  } catch (e) {
-    failures++;
-    log("  ! proof-of-life failed:", e.shortMessage || e.message);
+  let total = 0;
+  const runAction = async (label, fn) => {
+    total++;
+    try {
+      await fn();
+    } catch (e) {
+      failures++;
+      log(`  ! ${label} failed:`, e.shortMessage || e.message);
+    }
+  };
+
+  await runAction("proof-of-life", () => maybeCheckIn(ctx.legacy, ctx.agent, ctx.provider));
+  await runAction("yield sweep", () => maybeSweep(ctx.vault, ctx.agent, ctx.provider));
+  await runAction("interest claim", () => maybeClaim(ctx.vault, ctx.agent));
+  if (ctx.streams) {
+    await runAction("scheduled payments", () => maybeRunSchedules(ctx.streams));
   }
-  try {
-    await maybeSweep(ctx.vault, ctx.agent, ctx.provider);
-  } catch (e) {
-    failures++;
-    log("  ! yield sweep failed:", e.shortMessage || e.message);
-  }
-  try {
-    await maybeClaim(ctx.vault, ctx.agent);
-  } catch (e) {
-    failures++;
-    log("  ! interest claim failed:", e.shortMessage || e.message);
-  }
-  return failures;
+  return { failures, total };
 }
 
 async function main() {
@@ -305,6 +353,10 @@ async function main() {
     agent,
     legacy: new Contract(ARC_LEGACY_ADDRESS, LEGACY_ABI, runner),
     vault: new Contract(YIELD_VAULT_ADDRESS, VAULT_ABI, runner),
+    // Recurring-payments executor is optional — only wired when configured.
+    streams: STREAMS_ADDRESS
+      ? new Contract(STREAMS_ADDRESS, STREAMS_ABI, runner)
+      : null,
   };
 
   log("Arc Legacy autonomous keeper starting");
@@ -315,6 +367,7 @@ async function main() {
   log(`  explorer:   ${EXPLORER}`);
   log(`  estate:     ${ARC_LEGACY_ADDRESS}`);
   log(`  yieldVault: ${YIELD_VAULT_ADDRESS}`);
+  log(`  streams:    ${STREAMS_ADDRESS || "(not configured — skipping)"}`);
   if (!DRY_RUN) {
     const bal = await read(() => provider.getBalance(agent));
     log(`  balance:    ${usdc(bal)}`);
@@ -344,8 +397,8 @@ async function main() {
 
   let consecutiveFailedCycles = 0;
   while (!stopping) {
-    const failures = await cycle(ctx);
-    if (failures >= 3) {
+    const { failures, total } = await cycle(ctx);
+    if (total > 0 && failures >= total) {
       consecutiveFailedCycles++;
       log(
         `cycle fully failed (${consecutiveFailedCycles}` +

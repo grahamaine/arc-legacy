@@ -472,6 +472,37 @@ input.invalid {
   color: var(--red);
 }
 
+/* Explanatory footnote pinned to the bottom of a widget card, describing what
+   the toolbox does. Muted and separated by a hairline so it reads as a caption,
+   not primary content. */
+.widget-note {
+  margin: 0.9rem -1.25rem -1.1rem; /* bleed to the card's padding edges */
+  padding: 0.6rem 1.25rem 0.75rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.widget-note strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Recurring-stream list row: description on the left, actions on the right. */
+.stream-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stream-row > div:first-child {
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
 .tx {
   border-radius: var(--radius);
   padding: 0.6rem 1rem;

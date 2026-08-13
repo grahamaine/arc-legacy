@@ -213,6 +213,11 @@ export function VaultWidget({
         </>
       )}
       <TxStatusLine status={tx.status} />
+      <p className="widget-note">
+        <strong>Estate vault</strong> — your USDC balance, dead-man's-switch
+        countdown, payout mode (lump sum or vesting) and heir allocation, read
+        live from the ArcLegacyV2 contract. Check in here to stay alive.
+      </p>
     </section>
   );
 }

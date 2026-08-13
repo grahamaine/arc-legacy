@@ -8,6 +8,7 @@ import { WithdrawWidget } from "./WithdrawWidget";
 import { HeirsWidget } from "./HeirsWidget";
 import { GuardiansWidget } from "./GuardiansWidget";
 import { ClaimWidget } from "./ClaimWidget";
+import { RecurringWidget } from "./RecurringWidget";
 import { BalancesWidget } from "./BalancesWidget";
 import { GasMeterWidget } from "./GasMeterWidget";
 import { UnifiedBalanceWidget } from "./UnifiedBalanceWidget";
@@ -169,6 +170,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
                   <WithdrawWidget wallet={wallet} estate={estate} refresh={refresh} />
                   <HeirsWidget wallet={wallet} estate={estate} refresh={refresh} />
                   <GuardiansWidget wallet={wallet} estate={estate} refresh={refresh} />
+                  <RecurringWidget wallet={wallet} />
                   <ClaimWidget wallet={wallet} />
                 </>
               )}

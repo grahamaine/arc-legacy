@@ -14,6 +14,7 @@ Built for the **Build on Arc** hackathon, entered in **both** tracks with one pr
 | **ArcLegacyV2** — estate vault | [`0x2b56…C277`](https://testnet.arcscan.app/address/0x2b56a883c95B8809BE663E01F18af08b37AbC277) | Inheritance vault: deposits, heirs, dead-man's-switch, linear vesting, M-of-N guardians |
 | **ArcYieldVault** | [`0xb5b5…8761`](https://testnet.arcscan.app/address/0xb5b5CE9C1bD85A68B4fE2F0274d419bE1a3f8761) | Real 5% APY native-USDC savings vault, interest paid from a funded reserve |
 | **PaymentRouter** | [`0x3a21…0630`](https://testnet.arcscan.app/address/0x3a210EF428ce1aF1549F0BcF60DA8B608C200630) | Programmable USDC payments: atomic fee-split + conditional escrow |
+| **LegacyStreams** ⭐ *new* | *deploy with `scripts/deployLegacyStreams.js`* | Recurring USDC payments: DCA estate contributions + scheduled heir annuities, settled by the autonomous keeper |
 
 ---
 
@@ -53,8 +54,9 @@ Billions in crypto are lost forever when holders die or lose access — a wallet
 | `contracts/ArcLegacyV2.sol` | Estate vault (deployed): deposits, heirs, check-ins, vesting, guardians, claims |
 | `contracts/ArcYieldVault.sol` | Real 5% APY native-USDC savings vault |
 | `contracts/PaymentRouter.sol` | Atomic fee-split payments + conditional escrow |
+| `contracts/LegacyStreams.sol` | Recurring native-USDC payments (DCA contributions + heir annuities) |
 | `contracts/ArcLegacy.sol` | v1 estate vault (superseded by v2) |
-| `test/*.test.js` | Unit test suites — **50 passing** (Hardhat + ethers v6) |
+| `test/*.test.js` | Unit test suites — **64 passing** (Hardhat + ethers v6) |
 | `scripts/deploy*.js` | Deploy scripts for each contract |
 | `web/` | Frontend: Vite + React + TypeScript + ethers v6 + Circle App Kit |
 | `web/api/rpc.js` | Same-origin JSON-RPC proxy (see Technical notes) |
@@ -64,7 +66,7 @@ Billions in crypto are lost forever when holders die or lose access — a wallet
 
 ```bash
 npm install
-npx hardhat test            # 50 passing
+npx hardhat test            # 64 passing
 ```
 
 ### Run the web app
@@ -95,7 +97,12 @@ Full details and config knobs: [`agent/README.md`](agent/README.md).
 npx hardhat run scripts/deployArcLegacyV2.js --network arcTestnet
 npx hardhat run scripts/deployYieldVault.js --network arcTestnet
 npx hardhat run scripts/deployPaymentRouter.js --network arcTestnet
+npx hardhat run scripts/deployLegacyStreams.js --network arcTestnet
 ```
+
+After deploying LegacyStreams, set `VITE_STREAMS_ADDRESS` (web) and
+`STREAMS_ADDRESS` (keeper) so the Recurring widget and the keeper's scheduled-
+payments action activate.
 
 ### Arc testnet details
 
