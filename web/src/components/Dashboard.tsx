@@ -26,10 +26,12 @@ import { LiquidityWidget } from "./LiquidityWidget";
 import { AgentWidget } from "./AgentWidget";
 import { AgentMarketplaceWidget } from "./AgentMarketplaceWidget";
 import { MoneyMarketWidget } from "./MoneyMarketWidget";
+import { PortfolioWidget } from "./PortfolioWidget";
 
-type SectionKey = "estate" | "wallet" | "earn" | "agents";
+type SectionKey = "portfolio" | "estate" | "wallet" | "earn" | "agents";
 
 const SECTIONS: { key: SectionKey; label: string; icon: string }[] = [
+  { key: "portfolio", label: "Portfolio", icon: "📊" },
   { key: "estate", label: "Estate", icon: "🏛️" },
   { key: "wallet", label: "Wallet", icon: "👛" },
   { key: "earn", label: "DeFi", icon: "📈" },
@@ -38,6 +40,11 @@ const SECTIONS: { key: SectionKey; label: string; icon: string }[] = [
 
 // Short caption shown under each section's data column heading.
 const SECTION_META: Record<SectionKey, { title: string; blurb: string; aside: string }> = {
+  portfolio: {
+    title: "Portfolio at a glance",
+    blurb: "Your whole position on Arc — wallet, estate, lending and streams.",
+    aside: "",
+  },
   estate: {
     title: "Estate overview",
     blurb: "Vault balance, heir allocation and on-chain activity.",
@@ -64,7 +71,7 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
   const { account } = wallet;
   const [estate, setEstate] = useState<EstateView | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [section, setSection] = useState<SectionKey>("estate");
+  const [section, setSection] = useState<SectionKey>("portfolio");
 
   const refresh = useCallback(() => {
     if (!account || !CONTRACT_ADDRESS) return;
@@ -115,7 +122,17 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
           <p className="banner warning">Could not load estate: {loadError}</p>
         )}
 
-        {section === "estate" && !CONTRACT_ADDRESS ? (
+        {section === "portfolio" ? (
+          <div className="dash-primary" key="portfolio">
+            <header className="split-head">
+              <h2>{SECTION_META.portfolio.title}</h2>
+              <p>{SECTION_META.portfolio.blurb}</p>
+            </header>
+            <div className="primary-grid">
+              <PortfolioWidget wallet={wallet} />
+            </div>
+          </div>
+        ) : section === "estate" && !CONTRACT_ADDRESS ? (
           <section className="card">
             <h3>Vault</h3>
             <p className="hint">
