@@ -1,8 +1,8 @@
 :root {
-  --bg: #070a12;
-  --surface: rgba(255, 255, 255, 0.045);
-  --surface-2: rgba(255, 255, 255, 0.08);
-  --border: rgba(255, 255, 255, 0.12);
+  --bg: #1b2740;
+  --surface: rgba(255, 255, 255, 0.055);
+  --surface-2: rgba(255, 255, 255, 0.10);
+  --border: rgba(255, 255, 255, 0.15);
   --text: #eaf0f8;
   --text-dim: #93a2bb;
   --accent: #1ec8c8;
@@ -24,9 +24,9 @@ body {
   font-family: "Oswald", "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0.015em;
   background:
-    radial-gradient(1200px 700px at 15% -10%, rgba(30, 200, 200, 0.14), transparent 55%),
-    radial-gradient(1000px 600px at 100% 0%, rgba(74, 140, 240, 0.12), transparent 55%),
-    linear-gradient(rgba(7, 10, 18, 0.86), rgba(7, 10, 18, 0.94)),
+    radial-gradient(1200px 700px at 15% -10%, rgba(30, 200, 200, 0.16), transparent 55%),
+    radial-gradient(1000px 600px at 100% 0%, rgba(74, 140, 240, 0.18), transparent 55%),
+    linear-gradient(160deg, rgba(43, 59, 87, 0.78), rgba(27, 39, 64, 0.9)),
     url("/bg.png") center / cover no-repeat fixed var(--bg);
   color: var(--text);
   line-height: 1.5;
@@ -694,8 +694,8 @@ footer {
   justify-content: center;
   gap: 1.4rem;
   background:
-    radial-gradient(900px 600px at 50% 40%, rgba(30, 200, 200, 0.18), transparent 65%),
-    linear-gradient(160deg, #0a0f1b, #070a12 60%, #05070d 100%);
+    radial-gradient(900px 600px at 50% 40%, rgba(30, 200, 200, 0.2), transparent 65%),
+    linear-gradient(160deg, #33425f, #1b2740 60%, #141d30 100%);
   background-color: var(--bg);
   animation: splashOut 0.6s ease 1.9s forwards;
 }
