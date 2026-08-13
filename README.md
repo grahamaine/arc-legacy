@@ -14,7 +14,7 @@ Built for the **Build on Arc** hackathon, entered in **both** tracks with one pr
 | **ArcLegacyV2** — estate vault | [`0x2b56…C277`](https://testnet.arcscan.app/address/0x2b56a883c95B8809BE663E01F18af08b37AbC277) | Inheritance vault: deposits, heirs, dead-man's-switch, linear vesting, M-of-N guardians |
 | **ArcYieldVault** | [`0xb5b5…8761`](https://testnet.arcscan.app/address/0xb5b5CE9C1bD85A68B4fE2F0274d419bE1a3f8761) | Real 5% APY native-USDC savings vault, interest paid from a funded reserve |
 | **PaymentRouter** | [`0x3a21…0630`](https://testnet.arcscan.app/address/0x3a210EF428ce1aF1549F0BcF60DA8B608C200630) | Programmable USDC payments: atomic fee-split + conditional escrow |
-| **LegacyStreams** ⭐ *new* | *deploy with `scripts/deployLegacyStreams.js`* | Recurring USDC payments: DCA estate contributions + scheduled heir annuities, settled by the autonomous keeper |
+| **LegacyStreams** ⭐ *new* | [`0xBdbD…2b2a`](https://testnet.arcscan.app/address/0xBdbD5Cf3D05735Fe526c8Df58FB978C8915d2b2a) | Recurring USDC payments: DCA estate contributions + scheduled heir annuities, settled by the autonomous keeper |
 
 ---
 
