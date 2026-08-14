@@ -871,6 +871,11 @@ footer {
   gap: 1.5rem;
 }
 
+/* A lone action widget (e.g. Agents) spans the full row instead of half. */
+.dash-split.stacked .dash-aside > .card:nth-child(2):last-child {
+  grid-column: 1 / -1;
+}
+
 @media (max-width: 640px) {
   .dash-split.stacked .dash-aside {
     grid-template-columns: 1fr;
