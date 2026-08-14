@@ -141,7 +141,12 @@ export function Dashboard({ wallet }: { wallet: WalletState }) {
             </p>
           </section>
         ) : (
-          <div className="dash-split" key={section}>
+          <div
+            className={`dash-split${
+              section === "wallet" || section === "earn" ? " stacked" : ""
+            }`}
+            key={section}
+          >
             {/* Left / center: data, analytics and portfolio widgets */}
             <div className="dash-primary">
               <header className="split-head">

@@ -859,6 +859,12 @@ footer {
   align-items: start;
 }
 
+/* Stacked sections (Wallet, DeFi): the action widgets drop full-width BELOW the
+   data widgets instead of sitting in a side rail, and tile horizontally there. */
+.dash-split.stacked {
+  grid-template-columns: 1fr;
+}
+
 .dash-primary {
   min-width: 0;
   display: flex;
