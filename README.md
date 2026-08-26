@@ -120,6 +120,12 @@ payments action activate.
 - **Rate-limit resilience.** The public RPC rate-limits hard, so all reads share one batched provider with retries and in-flight de-duplication (`web/src/lib/chain.ts`).
 - **App Kit tx-hash capture.** `web/src/lib/txhash.ts` robustly extracts a real tx hash from any App Kit result shape, so every live action leaves a verifiable Arcscan link.
 
+## Certifications
+
+<img src="docs/certificates/arc-bootcamp-certification-of-completion.png" alt="Programmable Money on Arc Bootcamp — Certificate of Completion, Graham Byagaba" width="600">
+
+*Programmable Money on Arc Bootcamp* — Certificate of Completion, Arc × Encode Club (June–July 2026).
+
 ## Roadmap (hackathon checkpoints)
 
 - [x] **Checkpoint 1 (Jul 19)** — idea, team, project page
